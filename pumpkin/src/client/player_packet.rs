@@ -338,7 +338,7 @@ impl Player {
 
     pub async fn handle_chat_message(&self, chat_message: SChatMessage) {
         let message = chat_message.message;
-        if message.len() > 256 {
+        if message.chars().count() > 256 {
             self.kick(TextComponent::text("Oversized message")).await;
             return;
         }
