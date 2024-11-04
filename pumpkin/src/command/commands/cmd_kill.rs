@@ -31,7 +31,7 @@ impl CommandExecutor for KillExecutor {
         let target_count = targets.len();
 
         for target in targets {
-            target.living_entity.kill().await;
+            target.kill(TextComponent::text("I kile yooou")).await;
         }
 
         let msg = if target_count == 1 {
@@ -60,7 +60,7 @@ impl CommandExecutor for KillSelfExecutor {
             .as_player()
             .ok_or(InvalidTreeError::InvalidRequirementError)?;
 
-        target.living_entity.kill().await;
+        target.kill(TextComponent::text("I kile yooou")).await;
 
         Ok(())
     }
