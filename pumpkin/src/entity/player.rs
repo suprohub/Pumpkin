@@ -1,7 +1,7 @@
 use std::{
     collections::{HashMap, VecDeque},
     sync::{
-        atomic::{AtomicBool, AtomicI32, AtomicI64, AtomicU32, AtomicU8},
+        atomic::{AtomicBool, AtomicI32, AtomicI64, AtomicU32, AtomicU8, Ordering},
         Arc,
     },
     time::{Duration, Instant},
@@ -23,15 +23,13 @@ use pumpkin_macros::sound;
 use pumpkin_protocol::{
     bytebuf::packet_id::Packet,
     client::play::{
-        CGameEvent, CHurtAnimation, CKeepAlive, CPlayDisconnect, CPlayerAbilities,
-        CPlayerInfoUpdate, CSetHealth, CSyncPlayerPosition, CSystemChatMessage, GameEvent,
-        PlayerAction,
+        CCombatDeath, CGameEvent, CHurtAnimation, CKeepAlive, CPlayDisconnect, CPlayerAbilities, CPlayerInfoUpdate, CSetHealth, CSyncPlayerPosition, CSystemChatMessage, GameEvent, PlayerAction
     },
     server::play::{
-        SChatCommand, SChatMessage, SClientInformationPlay, SConfirmTeleport, SInteract,
-        SPlayerAbilities, SPlayerAction, SPlayerCommand, SPlayerPosition, SPlayerPositionRotation,
-        SPlayerRotation, SSetCreativeSlot, SSetHeldItem, SSetPlayerGround, SSwingArm, SUseItem,
-        SUseItemOn,
+        SChatCommand, SChatMessage, SClientInformationPlay, SClientTickEnd, SConfirmTeleport,
+        SInteract, SPlayerAbilities, SPlayerAction, SPlayerCommand, SPlayerInput, SPlayerPosition,
+        SPlayerPositionRotation, SPlayerRotation, SSetCreativeSlot, SSetHeldItem, SSetPlayerGround,
+        SSwingArm, SUseItem, SUseItemOn,
     },
     RawPacket, ServerPacket, SoundCategory, VarInt,
 };
@@ -561,6 +559,14 @@ impl Player {
         self.client.close();
     }
 
+    pub async fn kill(&self, message: TextComponent<'_>) {
+        self.set_health(0.0, self.food.load(Ordering::Relaxed), self.food_saturation.load()).await;
+        self.living_entity.kill().await;
+        self.client
+            .send_packet(&CCombatDeath::new(self.entity_id().into(), message))
+            .await;
+    }
+
     pub async fn set_health(&self, health: f32, food: i32, food_saturation: f32) {
         self.living_entity.set_health(health).await;
         self.food.store(food, std::sync::atomic::Ordering::Relaxed);
@@ -675,11 +681,17 @@ impl Player {
                 self.handle_client_information(SClientInformationPlay::read(bytebuf)?)
                     .await;
             }
+            SPlayerInput::PACKET_ID => {
+                // TODO
+            }
             SInteract::PACKET_ID => {
                 self.handle_interact(SInteract::read(bytebuf)?).await;
             }
             SKeepAlive::PACKET_ID => {
                 self.handle_keep_alive(SKeepAlive::read(bytebuf)?).await;
+            }
+            SClientTickEnd::PACKET_ID => {
+                // TODO
             }
             SPlayerPosition::PACKET_ID => {
                 self.handle_position(SPlayerPosition::read(bytebuf)?).await;
@@ -722,7 +734,7 @@ impl Player {
             }
             SUseItem::PACKET_ID => self.handle_use_item(&SUseItem::read(bytebuf)?),
             _ => {
-                log::warn!("Failed to handle player packet id {:#04x}", packet.id.0);
+                log::warn!("Failed to handle player packet id {}", packet.id.0);
                 // TODO: We give an error if all play packets are implemented
                 //  return Err(Box::new(DeserializerError::UnknownPacket));
             }
