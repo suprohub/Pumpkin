@@ -112,6 +112,8 @@ impl World {
         sound_id: u16,
         category: SoundCategory,
         posistion: &Vector3<f64>,
+        volume: f32,
+        pitch: f32
     ) {
         let seed = thread_rng().gen::<f64>();
         self.broadcast_packet_all(&CSoundEffect::new(
@@ -120,8 +122,8 @@ impl World {
             posistion.x,
             posistion.y,
             posistion.z,
-            1.0,
-            1.0,
+            volume,
+            pitch,
             seed,
         ))
         .await;
