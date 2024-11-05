@@ -11,12 +11,12 @@ use crate::entity::{
 };
 use num_traits::ToPrimitive;
 use pumpkin_config::BasicConfiguration;
-use pumpkin_core::math::vector2::Vector2;
+use pumpkin_core::{math::vector2::Vector2, resourcepack::{Resourcepack, Resourcepacks}};
 use pumpkin_core::math::{position::WorldPosition, vector3::Vector3};
 use pumpkin_core::text::{color::NamedColor, TextComponent};
 use pumpkin_entity::{entity_type::EntityType, EntityId};
 use pumpkin_protocol::{
-    client::play::{CBlockUpdate, CSoundEffect, CWorldEvent},
+    client::play::{CAddResourcePack, CBlockUpdate, CRemoveResourcePack, CSoundEffect, CWorldEvent},
     SoundCategory,
 };
 use pumpkin_protocol::{
@@ -64,6 +64,8 @@ pub struct World {
     pub scoreboard: Mutex<Scoreboard>,
     /// The world's worldborder, defining the playable area and controlling its expansion or contraction.
     pub worldborder: Mutex<Worldborder>,
+    /// World local resourcepacks
+    pub resourcepacks: Mutex<Resourcepacks>
     // TODO: entities
 }
 
@@ -75,6 +77,7 @@ impl World {
             current_players: Arc::new(Mutex::new(HashMap::new())),
             scoreboard: Mutex::new(Scoreboard::new()),
             worldborder: Mutex::new(Worldborder::new(0.0, 0.0, 29_999_984.0, 0, 0, 0)),
+            resourcepacks: Mutex::new(Resourcepacks::new())
         }
     }
 
@@ -524,6 +527,15 @@ impl World {
         for player in current_players.values() {
             player.send_system_message(&msg_comp).await;
         }
+        for (uuid, resourcepack) in self.resourcepacks.lock().await.iter() {
+            player.client.send_packet(&CAddResourcePack::new(
+                *uuid,
+                resourcepack.url.clone(),
+                resourcepack.hash.clone(),
+                resourcepack.forced,
+                resourcepack.prompt.as_ref().map(|prompt| TextComponent::text(prompt))
+            )).await;
+        }
         log::info!("{}", msg_comp.to_pretty_console());
     }
 
@@ -566,6 +578,9 @@ impl World {
             TextComponent::text(disconn_msg_txt.as_str()).color_named(NamedColor::Yellow);
         for player in self.current_players.lock().await.values() {
             player.send_system_message(&disconn_msg_cmp).await;
+        }
+        for uuid in self.resourcepacks.lock().await.keys() {
+            player.client.send_packet(&CRemoveResourcePack::new(Some(*uuid))).await;
         }
         log::info!("{}", disconn_msg_cmp.to_pretty_console());
     }

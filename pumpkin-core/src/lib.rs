@@ -2,6 +2,7 @@ pub mod gamemode;
 pub mod math;
 pub mod random;
 pub mod text;
+pub mod resourcepack;
 
 pub use gamemode::GameMode;
 

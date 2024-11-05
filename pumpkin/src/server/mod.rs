@@ -1,11 +1,14 @@
 use connection_cache::{CachedBranding, CachedStatus};
 use key_store::KeyStore;
 use pumpkin_config::BASIC_CONFIG;
+use pumpkin_core::resourcepack::Resourcepacks;
+use pumpkin_core::text::TextComponent;
 use pumpkin_core::GameMode;
 use pumpkin_entity::EntityId;
 use pumpkin_inventory::drag_handler::DragHandler;
 use pumpkin_inventory::{Container, OpenContainer};
 use pumpkin_protocol::client::login::CEncryptionRequest;
+use pumpkin_protocol::client::play::CAddResourcePack;
 use pumpkin_protocol::{client::config::CPluginMessage, ClientPacket};
 use pumpkin_registry::Registry;
 use pumpkin_world::dimension::Dimension;
@@ -56,6 +59,8 @@ pub struct Server {
     entity_id: AtomicI32,
     /// Manages authentication with a authentication server, if enabled.
     pub auth_client: Option<reqwest::Client>,
+    /// Server global resourcepacks
+    pub resourcepacks: Mutex<Resourcepacks>
 }
 
 impl Server {
@@ -91,6 +96,7 @@ impl Server {
             worlds: vec![Arc::new(world)],
             command_dispatcher,
             auth_client,
+            resourcepacks: Mutex::new(Resourcepacks::new()),
             key_store: KeyStore::new(),
             server_listing: Mutex::new(CachedStatus::new()),
             server_branding: CachedBranding::new(),
@@ -142,6 +148,16 @@ impl Server {
             if config.server_listing {
                 self.server_listing.lock().await.add_player();
             }
+        }
+
+        for (uuid, resourcepack) in self.resourcepacks.lock().await.iter() {
+            player.client.send_packet(&CAddResourcePack::new(
+                *uuid,
+                resourcepack.url.clone(),
+                resourcepack.hash.clone(),
+                resourcepack.forced,
+                resourcepack.prompt.as_ref().map(|prompt| TextComponent::text(prompt))
+            )).await;
         }
 
         (player, world.clone())
