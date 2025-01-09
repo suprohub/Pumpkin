@@ -54,6 +54,8 @@ pub struct ItemComponents {
     pub max_damage: Option<u16>,
     #[serde(rename = "minecraft:attribute_modifiers")]
     pub attribute_modifiers: Option<AttributeModifiers>,
+    #[serde(rename = "minecraft:consumable")]
+    pub consumable: Option<Consumable>
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -75,6 +77,42 @@ pub struct Modifier {
     pub operation: Operation,
     // TODO: Make this an enum
     pub slot: String,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+#[serde(default)]
+pub struct Consumable {
+    pub consume_seconds: f32,
+    pub has_consume_particles: bool,
+    pub animation: Option<UseAnim>,
+    pub sound: Option<String>,
+    pub on_consume_effects: Option<serde_json::Value>
+}
+
+#[derive(Deserialize, Clone, Copy, Debug)]
+pub enum UseAnim {
+    Eat,
+    Drink,
+    Block,
+    Bow,
+    Spear,
+    Crossbow,
+    Spyglass,
+    TootHorn,
+    Brush,
+    Bundle
+}
+
+impl Default for Consumable {
+    fn default() -> Self {
+        Self {
+            consume_seconds: 1.6,
+            has_consume_particles: true,
+            animation: None,
+            sound: None,
+            on_consume_effects: None
+        }
+    }
 }
 
 #[derive(Deserialize, Clone, Debug, PartialEq)]

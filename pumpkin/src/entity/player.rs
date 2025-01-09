@@ -54,7 +54,7 @@ use pumpkin_world::{
         ItemStack,
     },
 };
-use tokio::sync::{Mutex, Notify, RwLock};
+use tokio::{sync::{Mutex, Notify, RwLock}, task::JoinHandle};
 
 use super::Entity;
 use crate::{
@@ -89,6 +89,8 @@ pub struct Player {
     pub food: AtomicI32,
     /// The player's food saturation level.
     pub food_saturation: AtomicCell<f32>,
+    /// The player's current eating state. Can be stopped using eating.abort()
+    pub eating: Mutex<Option<JoinHandle<()>>>,
     /// The ID of the currently open container (if any).
     pub open_container: AtomicCell<Option<u64>>,
     /// The item currently being held by the player.
@@ -177,6 +179,7 @@ impl Player {
             // TODO: Load this from previous instance
             food: AtomicI32::new(20),
             food_saturation: AtomicCell::new(20.0),
+            eating: Mutex::new(None),
             current_block_destroy_stage: AtomicU8::new(0),
             open_container: AtomicCell::new(None),
             carried_item: AtomicCell::new(None),
@@ -798,7 +801,9 @@ impl Player {
                 self.handle_use_item_on(SUseItemOn::read(bytebuf)?, server)
                     .await?;
             }
-            SUseItem::PACKET_ID => self.handle_use_item(&SUseItem::read(bytebuf)?),
+            SUseItem::PACKET_ID => {
+                self.handle_use_item(&SUseItem::read(bytebuf)?).await;
+            },
             SCommandSuggestion::PACKET_ID => {
                 self.handle_command_suggestion(SCommandSuggestion::read(bytebuf)?, server)
                     .await;
