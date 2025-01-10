@@ -210,10 +210,15 @@ impl Level {
     }
 
     pub async fn write_chunk(&self, chunk_to_write: (Vector2<i32>, Arc<RwLock<ChunkData>>)) {
-        let data = chunk_to_write.1.read().await;
-        if let Err(error) = self.chunk_writer.write_chunk(&data, &chunk_to_write.0) {
+        if let Err(error) = self.raw_chunk_writer.write_raw_chunk(
+            self.chunk_writer
+                .write_chunk(&*chunk_to_write.1.read().await, &chunk_to_write.0)
+                .unwrap(),
+            &self.level_folder,
+            &chunk_to_write.0,
+        ) {
             log::error!("Failed writing Chunk to disk {}", error.to_string());
-        }
+        };
     }
 
     fn load_chunk_from_save(
