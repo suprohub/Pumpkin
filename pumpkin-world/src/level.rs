@@ -11,9 +11,7 @@ use tokio::{
 
 use crate::{
     chunk::{
-        db::{
-            informative_table::InformativeTableDB, RawChunkReader, RawChunkWriter,
-        },
+        db::{informative_table::InformativeTableDB, RawChunkReader, RawChunkWriter},
         format::{anvil::AnvilChunkFormat, ChunkReader, ChunkReadingError, ChunkWriter},
         ChunkData, ChunkParsingError,
     },
@@ -227,7 +225,7 @@ impl Level {
         match chunk_reader.read_chunk(
             raw_chunk_reader
                 .read_raw_chunk(save_file, &chunk_pos)
-                .map_err(|_| ChunkReadingError::RegionIsInvalid)?,
+                .map_err(|_| ChunkReadingError::ChunkNotExist)?,
             &chunk_pos,
         ) {
             Ok(data) => Ok(Some(Arc::new(RwLock::new(data)))),
