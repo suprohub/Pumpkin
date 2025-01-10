@@ -6,6 +6,7 @@ use thiserror::Error;
 
 use crate::{coordinates::ChunkRelativeBlockCoordinates, WORLD_HEIGHT};
 
+pub mod compression;
 pub mod db;
 pub mod format;
 

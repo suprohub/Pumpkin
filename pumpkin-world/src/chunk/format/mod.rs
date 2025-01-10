@@ -3,7 +3,7 @@ pub mod anvil;
 use pumpkin_util::math::vector2::Vector2;
 use thiserror::Error;
 
-use super::{ChunkData, ChunkParsingError};
+use super::{compression::CompressionError, ChunkData, ChunkParsingError};
 
 pub trait ChunkReader: Sync + Send {
     fn read_chunk(
@@ -45,16 +45,4 @@ pub enum ChunkWritingError {
     Compression(CompressionError),
     #[error("Chunk serializing error: {0}")]
     ChunkSerializingError(String),
-}
-
-#[derive(Error, Debug)]
-pub enum CompressionError {
-    #[error("Compression scheme not recognised")]
-    UnknownCompression,
-    #[error("Error while working with zlib compression: {0}")]
-    ZlibError(std::io::Error),
-    #[error("Error while working with Gzip compression: {0}")]
-    GZipError(std::io::Error),
-    #[error("Error while working with LZ4 compression: {0}")]
-    LZ4Error(std::io::Error),
 }

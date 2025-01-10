@@ -1,8 +1,19 @@
 use std::io::{Read, Write};
 
 use flate2::bufread::{GzDecoder, GzEncoder, ZlibDecoder, ZlibEncoder};
+use thiserror::Error;
 
-use super::CompressionError;
+#[derive(Error, Debug)]
+pub enum CompressionError {
+    #[error("Compression scheme not recognised")]
+    UnknownCompression,
+    #[error("Error while working with zlib compression: {0}")]
+    ZlibError(std::io::Error),
+    #[error("Error while working with Gzip compression: {0}")]
+    GZipError(std::io::Error),
+    #[error("Error while working with LZ4 compression: {0}")]
+    LZ4Error(std::io::Error),
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
