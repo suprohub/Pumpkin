@@ -11,8 +11,8 @@ use tokio::{
 
 use crate::{
     chunk::{
-        anvil::AnvilChunkFormat, ChunkData, ChunkParsingError, ChunkReader, ChunkReadingError,
-        ChunkWriter,
+        format::{anvil::AnvilChunkFormat, ChunkReader, ChunkReadingError, ChunkWriter},
+        ChunkData,
     },
     generation::{get_world_gen, Seed, WorldGenerator},
     lock::{anvil::AnvilLevelLocker, LevelLocker},
@@ -206,10 +206,7 @@ impl Level {
 
     pub async fn write_chunk(&self, chunk_to_write: (Vector2<i32>, Arc<RwLock<ChunkData>>)) {
         let data = chunk_to_write.1.read().await;
-        if let Err(error) =
-            self.chunk_writer
-                .write_chunk(&data, &self.level_folder, &chunk_to_write.0)
-        {
+        if let Err(error) = self.chunk_writer.write_chunk(&data, &chunk_to_write.0) {
             log::error!("Failed writing Chunk to disk {}", error.to_string());
         }
     }
@@ -219,7 +216,8 @@ impl Level {
         save_file: &LevelFolder,
         chunk_pos: Vector2<i32>,
     ) -> Result<Option<Arc<RwLock<ChunkData>>>, ChunkReadingError> {
-        match chunk_reader.read_chunk(save_file, &chunk_pos) {
+        todo!()
+        /*match chunk_reader.read_chunk(save_file, &chunk_pos) {
             Ok(data) => Ok(Some(Arc::new(RwLock::new(data)))),
             Err(
                 ChunkReadingError::ChunkNotExist
@@ -229,7 +227,7 @@ impl Level {
                 Ok(None)
             }
             Err(err) => Err(err),
-        }
+        }*/
     }
 
     /// Reads/Generates many chunks in a world
@@ -258,11 +256,9 @@ impl Level {
                             Ok(chunk) => {
                                 // Save new Chunk
                                 if let Some(chunk) = &chunk {
-                                    if let Err(error) = chunk_writer.write_chunk(
-                                        &chunk.blocking_read(),
-                                        &level_folder,
-                                        &chunk_pos,
-                                    ) {
+                                    if let Err(error) =
+                                        chunk_writer.write_chunk(&chunk.blocking_read(), &chunk_pos)
+                                    {
                                         log::error!(
                                             "Failed writing Chunk to disk {}",
                                             error.to_string()
