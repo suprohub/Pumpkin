@@ -222,13 +222,23 @@ impl Level {
         save_file: &LevelFolder,
         chunk_pos: Vector2<i32>,
     ) -> Result<Option<Arc<RwLock<ChunkData>>>, ChunkReadingError> {
-        match chunk_reader.read_chunk(
-            raw_chunk_reader
-                .read_raw_chunk(save_file, &chunk_pos)
-                .map_err(|_| ChunkReadingError::ChunkNotExist)?,
-            &chunk_pos,
-        ) {
-            Ok(data) => Ok(Some(Arc::new(RwLock::new(data)))),
+        match raw_chunk_reader
+            .read_raw_chunk(save_file, &chunk_pos)
+            .map_err(|_| ChunkReadingError::ChunkNotExist)
+        {
+            Ok(chunk_bytes) => {
+                match chunk_reader.read_chunk(chunk_bytes, &chunk_pos) {
+                    Ok(data) => Ok(Some(Arc::new(RwLock::new(data)))),
+                    Err(
+                        ChunkReadingError::ChunkNotExist
+                        | ChunkReadingError::ParsingError(ChunkParsingError::ChunkNotGenerated),
+                    ) => {
+                        // This chunk was not generated yet.
+                        Ok(None)
+                    }
+                    Err(err) => Err(err),
+                }
+            }
             Err(
                 ChunkReadingError::ChunkNotExist
                 | ChunkReadingError::ParsingError(ChunkParsingError::ChunkNotGenerated),
