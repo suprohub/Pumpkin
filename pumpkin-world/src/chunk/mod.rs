@@ -8,71 +8,19 @@ use thiserror::Error;
 use crate::{
     block::BlockState,
     coordinates::{ChunkRelativeBlockCoordinates, Height},
-    level::LevelFolder,
     WORLD_HEIGHT,
 };
 
-pub mod anvil;
+pub mod db;
+pub mod format;
+
+// 1.21.4
+const WORLD_DATA_VERSION: i32 = 4189;
 
 pub const CHUNK_AREA: usize = 16 * 16;
 pub const SUBCHUNK_VOLUME: usize = CHUNK_AREA * 16;
 pub const SUBCHUNKS_COUNT: usize = WORLD_HEIGHT / 16;
 pub const CHUNK_VOLUME: usize = CHUNK_AREA * WORLD_HEIGHT;
-
-pub trait ChunkReader: Sync + Send {
-    fn read_chunk(
-        &self,
-        save_file: &LevelFolder,
-        at: &Vector2<i32>,
-    ) -> Result<ChunkData, ChunkReadingError>;
-}
-
-pub trait ChunkWriter: Send + Sync {
-    fn write_chunk(
-        &self,
-        chunk: &ChunkData,
-        level_folder: &LevelFolder,
-        at: &Vector2<i32>,
-    ) -> Result<(), ChunkWritingError>;
-}
-
-#[derive(Error, Debug)]
-pub enum ChunkReadingError {
-    #[error("Io error: {0}")]
-    IoError(std::io::ErrorKind),
-    #[error("Invalid header")]
-    InvalidHeader,
-    #[error("Region is invalid")]
-    RegionIsInvalid,
-    #[error("Compression error {0}")]
-    Compression(CompressionError),
-    #[error("Tried to read chunk which does not exist")]
-    ChunkNotExist,
-    #[error("Failed to parse Chunk from bytes: {0}")]
-    ParsingError(ChunkParsingError),
-}
-
-#[derive(Error, Debug)]
-pub enum ChunkWritingError {
-    #[error("Io error: {0}")]
-    IoError(std::io::ErrorKind),
-    #[error("Compression error {0}")]
-    Compression(CompressionError),
-    #[error("Chunk serializing error: {0}")]
-    ChunkSerializingError(String),
-}
-
-#[derive(Error, Debug)]
-pub enum CompressionError {
-    #[error("Compression scheme not recognised")]
-    UnknownCompression,
-    #[error("Error while working with zlib compression: {0}")]
-    ZlibError(std::io::Error),
-    #[error("Error while working with Gzip compression: {0}")]
-    GZipError(std::io::Error),
-    #[error("Error while working with LZ4 compression: {0}")]
-    LZ4Error(std::io::Error),
-}
 
 pub struct ChunkData {
     /// See description in `Subchunks`
