@@ -1,4 +1,3 @@
-pub mod compression;
 pub mod informative_table;
 
 use pumpkin_util::math::vector2::Vector2;
@@ -6,7 +5,7 @@ use thiserror::Error;
 
 use crate::level::LevelFolder;
 
-use super::ChunkParsingError;
+use super::{compression::CompressionError, ChunkParsingError};
 
 pub trait RawChunkReader: Sync + Send {
     fn read_raw_chunk(
@@ -49,16 +48,4 @@ pub enum RawChunkWritingError {
     Compression(CompressionError),
     #[error("Chunk serializing error: {0}")]
     ChunkSerializingError(String),
-}
-
-#[derive(Error, Debug)]
-pub enum CompressionError {
-    #[error("Compression scheme not recognised")]
-    UnknownCompression,
-    #[error("Error while working with zlib compression: {0}")]
-    ZlibError(std::io::Error),
-    #[error("Error while working with Gzip compression: {0}")]
-    GZipError(std::io::Error),
-    #[error("Error while working with LZ4 compression: {0}")]
-    LZ4Error(std::io::Error),
 }

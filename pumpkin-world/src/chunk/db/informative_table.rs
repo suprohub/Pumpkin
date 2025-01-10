@@ -6,7 +6,7 @@ use std::{
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 
-use crate::chunk::db::{compression::Compression, RawChunkWritingError};
+use crate::chunk::{compression::Compression, db::RawChunkWritingError};
 
 use super::{CompressionError, RawChunkReader, RawChunkReadingError, RawChunkWriter};
 
