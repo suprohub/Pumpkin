@@ -5,16 +5,14 @@ use thiserror::Error;
 
 use super::{compression::CompressionError, ChunkData, ChunkParsingError};
 
-pub trait ChunkReader: Sync + Send {
+pub trait ChunkFormat: Sync + Send {
     fn read_chunk(
         &self,
         chunk_bytes: Vec<u8>,
         at: &Vector2<i32>,
     ) -> Result<ChunkData, ChunkReadingError>;
-}
 
-pub trait ChunkWriter: Send + Sync {
-    fn write_chunk(
+    fn save_chunk(
         &self,
         chunk_data: &ChunkData,
         at: &Vector2<i32>,

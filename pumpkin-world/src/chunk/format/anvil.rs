@@ -14,7 +14,7 @@ use crate::chunk::{
 };
 use crate::coordinates::{ChunkRelativeBlockCoordinates, Height};
 
-use super::{ChunkReader, ChunkReadingError, ChunkWriter, ChunkWritingError};
+use super::{ChunkFormat, ChunkReadingError, ChunkWritingError};
 
 #[derive(Clone, Default)]
 pub struct AnvilChunkFormat;
@@ -98,7 +98,7 @@ pub enum ChunkSerializingError {
     ErrorSerializingChunk(fastnbt::error::Error),
 }
 
-impl ChunkReader for AnvilChunkFormat {
+impl ChunkFormat for AnvilChunkFormat {
     fn read_chunk(
         &self,
         chunk_bytes: Vec<u8>,
@@ -202,10 +202,8 @@ impl ChunkReader for AnvilChunkFormat {
             position: *at,
         })
     }
-}
 
-impl ChunkWriter for AnvilChunkFormat {
-    fn write_chunk(
+    fn save_chunk(
         &self,
         chunk_data: &ChunkData,
         _at: &Vector2<i32>,

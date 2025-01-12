@@ -7,25 +7,23 @@ use crate::level::LevelFolder;
 
 use super::{compression::CompressionError, ChunkParsingError};
 
-pub trait RawChunkReader: Sync + Send {
+pub trait ChunkStorage: Sync + Send {
     fn read_raw_chunk(
         &self,
         save_file: &LevelFolder,
         at: &Vector2<i32>,
-    ) -> Result<Vec<u8>, RawChunkReadingError>;
-}
+    ) -> Result<Vec<u8>, ChunkStorageReadingError>;
 
-pub trait RawChunkWriter: Send + Sync {
     fn write_raw_chunk(
         &self,
         chunk: Vec<u8>,
         level_folder: &LevelFolder,
         at: &Vector2<i32>,
-    ) -> Result<(), RawChunkWritingError>;
+    ) -> Result<(), ChunkStorageWritingError>;
 }
 
 #[derive(Error, Debug)]
-pub enum RawChunkReadingError {
+pub enum ChunkStorageReadingError {
     #[error("Io error: {0}")]
     IoError(std::io::ErrorKind),
     #[error("Invalid header")]
@@ -41,7 +39,7 @@ pub enum RawChunkReadingError {
 }
 
 #[derive(Error, Debug)]
-pub enum RawChunkWritingError {
+pub enum ChunkStorageWritingError {
     #[error("Io error: {0}")]
     IoError(std::io::ErrorKind),
     #[error("Compression error {0}")]

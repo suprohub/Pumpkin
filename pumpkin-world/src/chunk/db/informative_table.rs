@@ -6,18 +6,18 @@ use std::{
 
 use bytes::{Buf, BufMut, Bytes, BytesMut};
 
-use crate::chunk::{compression::Compression, db::RawChunkWritingError};
+use crate::chunk::{compression::Compression, db::ChunkStorageWritingError};
 
-use super::{CompressionError, RawChunkReader, RawChunkReadingError, RawChunkWriter};
+use super::{ChunkStorage, ChunkStorageReadingError, CompressionError};
 
-pub struct InformativeTableDB;
+pub struct InformativeTable;
 
-impl RawChunkReader for InformativeTableDB {
+impl ChunkStorage for InformativeTable {
     fn read_raw_chunk(
         &self,
         save_file: &crate::level::LevelFolder,
         at: &pumpkin_util::math::vector2::Vector2<i32>,
-    ) -> Result<Vec<u8>, RawChunkReadingError> {
+    ) -> Result<Vec<u8>, ChunkStorageReadingError> {
         let region = (at.x >> 5, at.z >> 5);
 
         let mut region_file = OpenOptions::new()
@@ -28,8 +28,8 @@ impl RawChunkReader for InformativeTableDB {
                     .join(format!("r.{}.{}.mca", region.0, region.1)),
             )
             .map_err(|err| match err.kind() {
-                std::io::ErrorKind::NotFound => RawChunkReadingError::ChunkNotExist,
-                kind => RawChunkReadingError::IoError(kind),
+                std::io::ErrorKind::NotFound => ChunkStorageReadingError::ChunkNotExist,
+                kind => ChunkStorageReadingError::IoError(kind),
             })?;
 
         let mut location_table: [u8; 4096] = [0; 4096];
@@ -38,10 +38,10 @@ impl RawChunkReader for InformativeTableDB {
         // fill the location and timestamp tables
         region_file
             .read_exact(&mut location_table)
-            .map_err(|err| RawChunkReadingError::IoError(err.kind()))?;
+            .map_err(|err| ChunkStorageReadingError::IoError(err.kind()))?;
         region_file
             .read_exact(&mut timestamp_table)
-            .map_err(|err| RawChunkReadingError::IoError(err.kind()))?;
+            .map_err(|err| ChunkStorageReadingError::IoError(err.kind()))?;
 
         let chunk_x = at.x & 0x1F;
         let chunk_z = at.z & 0x1F;
@@ -54,31 +54,32 @@ impl RawChunkReader for InformativeTableDB {
         let size_at = location_table[table_entry as usize + 3] as usize * 4096;
 
         if offset_at == 0 && size_at == 0 {
-            return Err(RawChunkReadingError::ChunkNotExist);
+            return Err(ChunkStorageReadingError::ChunkNotExist);
         }
 
         // Read the file using the offset and size
         let mut file_buf = {
             region_file
                 .seek(std::io::SeekFrom::Start(offset_at))
-                .map_err(|_| RawChunkReadingError::RegionIsInvalid)?;
+                .map_err(|_| ChunkStorageReadingError::RegionIsInvalid)?;
             let mut out = vec![0; size_at];
             region_file
                 .read_exact(&mut out)
-                .map_err(|_| RawChunkReadingError::RegionIsInvalid)?;
+                .map_err(|_| ChunkStorageReadingError::RegionIsInvalid)?;
             out
         };
 
         let mut header: Bytes = file_buf.drain(0..5).collect();
         if header.remaining() != 5 {
-            return Err(RawChunkReadingError::InvalidHeader);
+            return Err(ChunkStorageReadingError::InvalidHeader);
         }
 
         let size = header.get_u32();
         let compression = header.get_u8();
 
-        let compression = Compression::from_byte(compression)
-            .map_err(|_| RawChunkReadingError::Compression(CompressionError::UnknownCompression))?;
+        let compression = Compression::from_byte(compression).map_err(|_| {
+            ChunkStorageReadingError::Compression(CompressionError::UnknownCompression)
+        })?;
 
         // size includes the compression scheme byte, so we need to subtract 1
         let chunk_data: Vec<u8> = file_buf.drain(0..size as usize - 1).collect();
@@ -86,22 +87,20 @@ impl RawChunkReader for InformativeTableDB {
         let decompressed_chunk = if let Some(compression) = compression {
             compression
                 .decompress_data(&chunk_data)
-                .map_err(RawChunkReadingError::Compression)?
+                .map_err(ChunkStorageReadingError::Compression)?
         } else {
             chunk_data
         };
 
         Ok(decompressed_chunk)
     }
-}
 
-impl RawChunkWriter for InformativeTableDB {
     fn write_raw_chunk(
         &self,
         chunk: Vec<u8>,
         level_folder: &crate::level::LevelFolder,
         at: &pumpkin_util::math::vector2::Vector2<i32>,
-    ) -> Result<(), super::RawChunkWritingError> {
+    ) -> Result<(), super::ChunkStorageWritingError> {
         let region = (at.x >> 5, at.z >> 5);
 
         let mut region_file = OpenOptions::new()
@@ -114,13 +113,13 @@ impl RawChunkWriter for InformativeTableDB {
                     .region_folder
                     .join(format!("./r.{}.{}.mca", region.0, region.1)),
             )
-            .map_err(|err| RawChunkWritingError::IoError(err.kind()))?;
+            .map_err(|err| ChunkStorageWritingError::IoError(err.kind()))?;
 
         // Compress chunk data
         let compression = Compression::ZLib;
         let compressed_data = compression
             .compress_data(&chunk, 6)
-            .map_err(RawChunkWritingError::Compression)?;
+            .map_err(ChunkStorageWritingError::Compression)?;
 
         // Length of compressed data + compression type
         let length = compressed_data.len() as u32 + 1;
@@ -142,17 +141,17 @@ impl RawChunkWriter for InformativeTableDB {
 
         let file_meta = region_file
             .metadata()
-            .map_err(|err| RawChunkWritingError::IoError(err.kind()))?;
+            .map_err(|err| ChunkStorageWritingError::IoError(err.kind()))?;
 
         // The header consists of 8 KiB of data
         // Try to fill the location and timestamp tables if they already exist
         if file_meta.len() >= 8192 {
             region_file
                 .read_exact(&mut location_table)
-                .map_err(|err| RawChunkWritingError::IoError(err.kind()))?;
+                .map_err(|err| ChunkStorageWritingError::IoError(err.kind()))?;
             region_file
                 .read_exact(&mut timestamp_table)
-                .map_err(|err| RawChunkWritingError::IoError(err.kind()))?;
+                .map_err(|err| ChunkStorageWritingError::IoError(err.kind()))?;
         }
 
         // Get location table index
@@ -200,17 +199,17 @@ impl RawChunkWriter for InformativeTableDB {
         region_file.seek(SeekFrom::Start(0)).unwrap();
         region_file
             .write_all(&[location_table, timestamp_table].concat())
-            .map_err(|e| RawChunkWritingError::IoError(e.kind()))?;
+            .map_err(|e| ChunkStorageWritingError::IoError(e.kind()))?;
 
         // Seek to where the chunk is located
         region_file
             .seek(SeekFrom::Start(chunk_data_location * 4096))
-            .map_err(|err| RawChunkWritingError::IoError(err.kind()))?;
+            .map_err(|err| ChunkStorageWritingError::IoError(err.kind()))?;
 
         // Write header and payload
         region_file
             .write_all(&chunk_payload)
-            .map_err(|err| RawChunkWritingError::IoError(err.kind()))?;
+            .map_err(|err| ChunkStorageWritingError::IoError(err.kind()))?;
 
         // Calculate padding to fill the sectors
         // (length + 4) 3 bits for length and 1 for compression type + payload length
@@ -219,17 +218,17 @@ impl RawChunkWriter for InformativeTableDB {
         // Write padding
         region_file
             .write_all(&vec![0u8; padding as usize])
-            .map_err(|err| RawChunkWritingError::IoError(err.kind()))?;
+            .map_err(|err| ChunkStorageWritingError::IoError(err.kind()))?;
 
         region_file
             .flush()
-            .map_err(|err| RawChunkWritingError::IoError(err.kind()))?;
+            .map_err(|err| ChunkStorageWritingError::IoError(err.kind()))?;
 
         Ok(())
     }
 }
 
-impl InformativeTableDB {
+impl InformativeTable {
     /// Returns the next free writable sector
     /// The sector is absolute which means it always has a spacing of 2 sectors
     fn find_free_sector(&self, location_table: &[u8; 4096], sector_size: usize) -> usize {
