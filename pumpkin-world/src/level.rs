@@ -11,8 +11,8 @@ use tokio::{
 
 use crate::{
     chunk::{
-        db::{informative_table::InformativeTableDB, RawChunkReader, RawChunkWriter},
-        format::{anvil::AnvilChunkFormat, ChunkReader, ChunkReadingError, ChunkWriter},
+        db::{informative_table::InformativeTable, ChunkStorage},
+        format::{anvil::AnvilChunkFormat, ChunkFormat, ChunkReadingError},
         ChunkData, ChunkParsingError,
     },
     generation::{get_world_gen, Seed, WorldGenerator},
@@ -36,10 +36,8 @@ pub struct Level {
     level_folder: LevelFolder,
     loaded_chunks: Arc<DashMap<Vector2<i32>, Arc<RwLock<ChunkData>>>>,
     chunk_watchers: Arc<DashMap<Vector2<i32>, usize>>,
-    chunk_reader: Arc<dyn ChunkReader>,
-    chunk_writer: Arc<dyn ChunkWriter>,
-    raw_chunk_reader: Arc<dyn RawChunkReader>,
-    raw_chunk_writer: Arc<dyn RawChunkWriter>,
+    chunk_format: Arc<dyn ChunkFormat>,
+    chunk_storage: Arc<dyn ChunkStorage>,
     world_gen: Arc<dyn WorldGenerator>,
     // Gets unlocked when dropped
     // TODO: Make this a trait
@@ -80,10 +78,8 @@ impl Level {
             world_gen,
             world_info_writer: Arc::new(AnvilLevelInfo),
             level_folder,
-            chunk_reader: Arc::new(AnvilChunkFormat),
-            chunk_writer: Arc::new(AnvilChunkFormat),
-            raw_chunk_reader: Arc::new(InformativeTableDB),
-            raw_chunk_writer: Arc::new(InformativeTableDB),
+            chunk_format: Arc::new(AnvilChunkFormat),
+            chunk_storage: Arc::new(InformativeTable),
             loaded_chunks: Arc::new(DashMap::new()),
             chunk_watchers: Arc::new(DashMap::new()),
             level_info,
@@ -210,9 +206,9 @@ impl Level {
     }
 
     pub async fn write_chunk(&self, chunk_to_write: (Vector2<i32>, Arc<RwLock<ChunkData>>)) {
-        if let Err(error) = self.raw_chunk_writer.write_raw_chunk(
-            self.chunk_writer
-                .write_chunk(&*chunk_to_write.1.read().await, &chunk_to_write.0)
+        if let Err(error) = self.chunk_storage.write_raw_chunk(
+            self.chunk_format
+                .save_chunk(&*chunk_to_write.1.read().await, &chunk_to_write.0)
                 .unwrap(),
             &self.level_folder,
             &chunk_to_write.0,
@@ -222,8 +218,8 @@ impl Level {
     }
 
     fn load_chunk_from_save(
-        raw_chunk_reader: Arc<dyn RawChunkReader>,
-        chunk_reader: Arc<dyn ChunkReader>,
+        raw_chunk_reader: Arc<dyn ChunkStorage>,
+        chunk_reader: Arc<dyn ChunkFormat>,
         save_file: &LevelFolder,
         chunk_pos: Vector2<i32>,
     ) -> Result<Option<Arc<RwLock<ChunkData>>>, ChunkReadingError> {
@@ -266,10 +262,8 @@ impl Level {
         chunks.par_iter().for_each(|at| {
             let channel = channel.clone();
             let loaded_chunks = self.loaded_chunks.clone();
-            let chunk_reader = self.chunk_reader.clone();
-            let chunk_writer = self.chunk_writer.clone();
-            let raw_chunk_reader = self.raw_chunk_reader.clone();
-            let raw_chunk_writer = self.raw_chunk_writer.clone();
+            let chunk_format = self.chunk_format.clone();
+            let chunk_storage = self.chunk_storage.clone();
             let level_folder = self.level_folder.clone();
             let world_gen = self.world_gen.clone();
             let chunk_pos = *at;
@@ -279,17 +273,17 @@ impl Level {
                 .map(|entry| entry.value().clone())
                 .unwrap_or_else(|| {
                     let loaded_chunk = match Self::load_chunk_from_save(
-                        raw_chunk_reader,
-                        chunk_reader,
+                        chunk_storage.clone(),
+                        chunk_format.clone(),
                         &level_folder,
                         chunk_pos,
                     ) {
                         Ok(chunk) => {
                             // Save new Chunk
                             if let Some(chunk) = &chunk {
-                                if let Err(error) = raw_chunk_writer.write_raw_chunk(
-                                    chunk_writer
-                                        .write_chunk(&chunk.blocking_read(), &chunk_pos)
+                                if let Err(error) = chunk_storage.write_raw_chunk(
+                                    chunk_format
+                                        .save_chunk(&chunk.blocking_read(), &chunk_pos)
                                         .unwrap(),
                                     &level_folder,
                                     &chunk_pos,
