@@ -1,7 +1,7 @@
 use fastnbt::LongArray;
 use indexmap::IndexMap;
-use pumpkin_util::math::ceil_log2;
-use pumpkin_util::math::vector2::Vector2;
+use pumpkin_data::chunk::ChunkStatus;
+use pumpkin_util::math::{ceil_log2, vector2::Vector2};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use thiserror::Error;
@@ -55,34 +55,6 @@ struct ChunkNbt {
     #[serde(rename = "sections")]
     sections: Vec<ChunkSection>,
     heightmaps: ChunkHeightmaps,
-}
-
-#[derive(Serialize, Deserialize, Debug, PartialEq, Eq)]
-enum ChunkStatus {
-    #[serde(rename = "minecraft:empty")]
-    Empty,
-    #[serde(rename = "minecraft:structure_starts")]
-    StructureStarts,
-    #[serde(rename = "minecraft:structure_references")]
-    StructureReferences,
-    #[serde(rename = "minecraft:biomes")]
-    Biomes,
-    #[serde(rename = "minecraft:noise")]
-    Noise,
-    #[serde(rename = "minecraft:surface")]
-    Surface,
-    #[serde(rename = "minecraft:carvers")]
-    Carvers,
-    #[serde(rename = "minecraft:features")]
-    Features,
-    #[serde(rename = "minecraft:initialize_light")]
-    InitLight,
-    #[serde(rename = "minecraft:light")]
-    Light,
-    #[serde(rename = "minecraft:spawn")]
-    Spawn,
-    #[serde(rename = "minecraft:full")]
-    Full,
 }
 
 // I can't use an tag because it will break ChunkNBT, but status need to have a big S, so "Status"
