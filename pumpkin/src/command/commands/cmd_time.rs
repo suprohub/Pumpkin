@@ -53,8 +53,9 @@ impl CommandExecutor for TimeQueryExecutor {
         _args: &ConsumedArgs<'a>,
     ) -> Result<(), CommandError> {
         let mode = self.0;
-        let world = server
-            .worlds
+        // TODO: Maybe ask player for world, or get the current world
+        let worlds = server.worlds.read().await;
+        let world = worlds
             .first()
             .expect("There should always be at least one world");
         let level_time = world.level_time.lock().await;
@@ -62,15 +63,24 @@ impl CommandExecutor for TimeQueryExecutor {
         let msg = match mode {
             QueryMode::DayTime => {
                 let curr_time = level_time.query_daytime();
-                TextComponent::translate("commands.time.query", [curr_time.to_string().into()])
+                TextComponent::translate(
+                    "commands.time.query",
+                    [TextComponent::text(curr_time.to_string())].into(),
+                )
             }
             QueryMode::GameTime => {
                 let curr_time = level_time.query_gametime();
-                TextComponent::translate("commands.time.query", [curr_time.to_string().into()])
+                TextComponent::translate(
+                    "commands.time.query",
+                    [TextComponent::text(curr_time.to_string())].into(),
+                )
             }
             QueryMode::Day => {
                 let curr_time = level_time.query_day();
-                TextComponent::translate("commands.time.query", [curr_time.to_string().into()])
+                TextComponent::translate(
+                    "commands.time.query",
+                    [TextComponent::text(curr_time.to_string())].into(),
+                )
             }
         };
 
@@ -112,8 +122,9 @@ impl CommandExecutor for TimeChangeExecutor {
             }
         };
         let mode = self.0;
-        let world = server
-            .worlds
+        // TODO: Maybe ask player for world, or get the current world
+        let worlds = server.worlds.read().await;
+        let world = worlds
             .first()
             .expect("There should always be at least one world");
         let mut level_time = world.level_time.lock().await;
@@ -124,13 +135,19 @@ impl CommandExecutor for TimeChangeExecutor {
                 level_time.add_time(time_count.into());
                 level_time.send_time(world).await;
                 let curr_time = level_time.query_daytime();
-                TextComponent::translate("commands.time.add", [curr_time.to_string().into()])
+                TextComponent::translate(
+                    "commands.time.add",
+                    [TextComponent::text(curr_time.to_string())].into(),
+                )
             }
             Mode::Set(_) => {
                 // set
                 level_time.set_time(time_count.into());
                 level_time.send_time(world).await;
-                TextComponent::translate("commands.time.set", [time_count.to_string().into()])
+                TextComponent::translate(
+                    "commands.time.set",
+                    [TextComponent::text(time_count.to_string())].into(),
+                )
             }
         };
 

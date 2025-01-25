@@ -139,7 +139,7 @@ impl Player {
         if position.x.is_nan() || position.y.is_nan() || position.z.is_nan() {
             self.kick(TextComponent::translate(
                 "multiplayer.disconnect.invalid_player_movement",
-                [],
+                [].into(),
             ))
             .await;
             return;
@@ -207,7 +207,7 @@ impl Player {
         {
             self.kick(TextComponent::translate(
                 "multiplayer.disconnect.invalid_player_movement",
-                [],
+                [].into(),
             ))
             .await;
             return;
@@ -287,7 +287,7 @@ impl Player {
         if !rotation.yaw.is_finite() || !rotation.pitch.is_finite() {
             self.kick(TextComponent::translate(
                 "multiplayer.disconnect.invalid_player_movement",
-                [],
+                [].into(),
             ))
             .await;
             return;
@@ -539,7 +539,7 @@ impl Player {
         if message.chars().any(|c| c == '§' || c < ' ' || c == '\x7F') {
             self.kick(TextComponent::translate(
                 "multiplayer.disconnect.illegal_characters",
-                [],
+                [].into(),
             ))
             .await;
             return;
@@ -719,7 +719,7 @@ impl Player {
                     );
                     self.kick(TextComponent::translate(
                         "multiplayer.disconnect.invalid_entity_attacked",
-                        [],
+                        [].into(),
                     ))
                     .await;
                     return;
@@ -737,11 +737,14 @@ impl Player {
         }
     }
 
-    pub async fn handle_player_action(&self, player_action: SPlayerAction, server: &Server) {
+    pub async fn handle_player_action(
+        self: Arc<Self>,
+        player_action: SPlayerAction,
+        server: &Server,
+    ) {
         if !self.has_client_loaded() {
             return;
         }
-
         match Status::try_from(player_action.status.0) {
             Ok(status) => match status {
                 Status::StartedDigging => {
@@ -762,12 +765,12 @@ impl Player {
                         let world = &entity.world;
                         let block = world.get_block(&location).await;
 
-                        world.break_block(&location, Some(self)).await;
+                        world.break_block(&location, Some(self.clone())).await;
 
                         if let Ok(block) = block {
                             server
                                 .block_manager
-                                .on_broken(block, self, location, server)
+                                .on_broken(block, &self, location, server)
                                 .await;
                         }
                     }
@@ -800,12 +803,12 @@ impl Player {
                     let world = &entity.world;
                     let block = world.get_block(&location).await;
 
-                    world.break_block(&location, Some(self)).await;
+                    world.break_block(&location, Some(self.clone())).await;
 
                     if let Ok(block) = block {
                         server
                             .block_manager
-                            .on_broken(block, self, location, server)
+                            .on_broken(block, &self, location, server)
                             .await;
                     }
                 }
@@ -1152,7 +1155,7 @@ impl Player {
             self.send_system_message_raw(
                 &TextComponent::translate(
                     "build.tooHigh",
-                    vec![(WORLD_MAX_Y - 1).to_string().into()],
+                    vec![TextComponent::text((WORLD_MAX_Y - 1).to_string())],
                 )
                 .color_named(NamedColor::Red),
                 true,
