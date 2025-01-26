@@ -263,7 +263,7 @@ impl ChunkFormat for AnvilChunkFormat {
     }
 }
 
-/*#[cfg(test)]
+#[cfg(test)]
 mod tests {
     use pumpkin_util::math::vector2::Vector2;
     use std::fs;
@@ -341,4 +341,4 @@ mod tests {
 
         println!("Checked chunks successfully");
     }
-}*/
+}
