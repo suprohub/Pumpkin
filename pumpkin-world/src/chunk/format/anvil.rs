@@ -271,7 +271,7 @@ mod tests {
 
     use crate::chunk::db::informative_table::InformativeTable;
     use crate::chunk::db::{ChunkStorage, ChunkStorageReadingError};
-    
+
     use crate::generation::{get_world_gen, Seed};
     use crate::{
         chunk::format::{anvil::AnvilChunkFormat, ChunkFormat},
