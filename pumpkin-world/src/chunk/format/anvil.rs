@@ -270,8 +270,8 @@ mod tests {
     use std::path::PathBuf;
 
     use crate::chunk::db::informative_table::InformativeTable;
-    use crate::chunk::db::ChunkStorage;
-    use crate::chunk::format::ChunkReadingError;
+    use crate::chunk::db::{ChunkStorage, ChunkStorageReadingError};
+    
     use crate::generation::{get_world_gen, Seed};
     use crate::{
         chunk::format::{anvil::AnvilChunkFormat, ChunkFormat},
@@ -281,19 +281,17 @@ mod tests {
     #[test]
     fn not_existing() {
         let region_path = PathBuf::from("not_existing");
-        let result = AnvilChunkFormat.read_chunk(
-            InformativeTable
-                .read_raw_chunk(
-                    &LevelFolder {
-                        root_folder: PathBuf::from(""),
-                        region_folder: region_path,
-                    },
-                    &Vector2::new(0, 0),
-                )
-                .expect("Failed to read raw chunk"),
+        let result = InformativeTable.read_raw_chunk(
+            &LevelFolder {
+                root_folder: PathBuf::from(""),
+                region_folder: region_path,
+            },
             &Vector2::new(0, 0),
         );
-        assert!(matches!(result, Err(ChunkReadingError::ChunkNotExist)));
+        assert!(matches!(
+            result,
+            Err(ChunkStorageReadingError::ChunkNotExist)
+        ));
     }
 
     #[test]
