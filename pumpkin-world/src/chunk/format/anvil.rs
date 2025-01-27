@@ -269,10 +269,12 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    use crate::chunk::ChunkWriter;
+    use crate::chunk::db::informative_table::InformativeTable;
+    use crate::chunk::db::ChunkStorage;
+    use crate::chunk::format::ChunkReadingError;
     use crate::generation::{get_world_gen, Seed};
     use crate::{
-        chunk::{format::anvil::AnvilChunkFormat, ChunkReader, ChunkReadingError},
+        chunk::format::{anvil::AnvilChunkFormat, ChunkFormat},
         level::LevelFolder,
     };
 
@@ -280,10 +282,15 @@ mod tests {
     fn not_existing() {
         let region_path = PathBuf::from("not_existing");
         let result = AnvilChunkFormat.read_chunk(
-            &LevelFolder {
-                root_folder: PathBuf::from(""),
-                region_folder: region_path,
-            },
+            InformativeTable
+                .read_raw_chunk(
+                    &LevelFolder {
+                        root_folder: PathBuf::from(""),
+                        region_folder: region_path,
+                    },
+                    &Vector2::new(0, 0),
+                )
+                .expect("Failed to read raw chunk"),
             &Vector2::new(0, 0),
         );
         assert!(matches!(result, Err(ChunkReadingError::ChunkNotExist)));
@@ -314,8 +321,14 @@ mod tests {
         for i in 0..5 {
             println!("Iteration {}", i + 1);
             for (at, chunk) in &chunks {
-                AnvilChunkFormat
-                    .write_chunk(chunk, &level_folder, at)
+                InformativeTable
+                    .write_raw_chunk(
+                        AnvilChunkFormat
+                            .save_chunk(chunk, at)
+                            .expect("Failed to write raw chunk"),
+                        &level_folder,
+                        at,
+                    )
                     .expect("Failed to write chunk");
             }
 
@@ -323,8 +336,13 @@ mod tests {
             for (at, _chunk) in &chunks {
                 read_chunks.push(
                     AnvilChunkFormat
-                        .read_chunk(&level_folder, at)
-                        .expect("Could not read chunk"),
+                        .read_chunk(
+                            InformativeTable
+                                .read_raw_chunk(&level_folder, at)
+                                .expect("Failed to read raw chunk"),
+                            at,
+                        )
+                        .expect("Failed to read chunk"),
                 );
             }
 
