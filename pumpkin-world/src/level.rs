@@ -11,7 +11,7 @@ use tokio::{
 
 use crate::{
     chunk::{
-        db::{informative_table::InformativeTable, ChunkStorage},
+        db::{anvil_saver::AnvilSaver, ChunkStorage},
         format::{anvil::AnvilChunkFormat, ChunkFormat, ChunkReadingError},
         ChunkData, ChunkParsingError,
     },
@@ -79,7 +79,7 @@ impl Level {
             world_info_writer: Arc::new(AnvilLevelInfo),
             level_folder,
             chunk_format: Arc::new(AnvilChunkFormat),
-            chunk_storage: Arc::new(InformativeTable),
+            chunk_storage: Arc::new(AnvilSaver),
             loaded_chunks: Arc::new(DashMap::new()),
             chunk_watchers: Arc::new(DashMap::new()),
             level_info,

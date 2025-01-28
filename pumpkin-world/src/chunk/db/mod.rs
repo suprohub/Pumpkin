@@ -1,4 +1,4 @@
-pub mod informative_table;
+pub mod anvil_saver;
 
 use pumpkin_util::math::vector2::Vector2;
 use thiserror::Error;

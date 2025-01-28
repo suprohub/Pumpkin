@@ -10,9 +10,9 @@ use crate::chunk::{compression::Compression, db::ChunkStorageWritingError};
 
 use super::{ChunkStorage, ChunkStorageReadingError, CompressionError};
 
-pub struct InformativeTable;
+pub struct AnvilSaver;
 
-impl ChunkStorage for InformativeTable {
+impl ChunkStorage for AnvilSaver {
     fn read_raw_chunk(
         &self,
         save_file: &crate::level::LevelFolder,
@@ -228,7 +228,7 @@ impl ChunkStorage for InformativeTable {
     }
 }
 
-impl InformativeTable {
+impl AnvilSaver {
     /// Returns the next free writable sector
     /// The sector is absolute which means it always has a spacing of 2 sectors
     fn find_free_sector(&self, location_table: &[u8; 4096], sector_size: usize) -> usize {

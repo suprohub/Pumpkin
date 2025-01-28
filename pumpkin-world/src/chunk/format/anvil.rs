@@ -10,11 +10,13 @@ use crate::block::block_registry::BLOCK_ID_TO_REGISTRY_ID;
 use crate::block::BlockState;
 use crate::chunk::{
     ChunkData, ChunkHeightmaps, ChunkParsingError, Subchunks, CHUNK_AREA, SUBCHUNK_VOLUME,
-    WORLD_DATA_VERSION,
 };
 use crate::coordinates::{ChunkRelativeBlockCoordinates, Height};
 
 use super::{ChunkFormat, ChunkReadingError, ChunkWritingError};
+
+// 1.21.4
+const WORLD_DATA_VERSION: i32 = 4189;
 
 #[derive(Clone, Default)]
 pub struct AnvilChunkFormat;
@@ -269,7 +271,7 @@ mod tests {
     use std::fs;
     use std::path::PathBuf;
 
-    use crate::chunk::db::informative_table::InformativeTable;
+    use crate::chunk::db::anvil_saver::AnvilSaver;
     use crate::chunk::db::{ChunkStorage, ChunkStorageReadingError};
 
     use crate::generation::{get_world_gen, Seed};
@@ -281,7 +283,7 @@ mod tests {
     #[test]
     fn not_existing() {
         let region_path = PathBuf::from("not_existing");
-        let result = InformativeTable.read_raw_chunk(
+        let result = AnvilSaver.read_raw_chunk(
             &LevelFolder {
                 root_folder: PathBuf::from(""),
                 region_folder: region_path,
@@ -319,7 +321,7 @@ mod tests {
         for i in 0..5 {
             println!("Iteration {}", i + 1);
             for (at, chunk) in &chunks {
-                InformativeTable
+                AnvilSaver
                     .write_raw_chunk(
                         AnvilChunkFormat
                             .save_chunk(chunk, at)
@@ -335,7 +337,7 @@ mod tests {
                 read_chunks.push(
                     AnvilChunkFormat
                         .read_chunk(
-                            InformativeTable
+                            AnvilSaver
                                 .read_raw_chunk(&level_folder, at)
                                 .expect("Failed to read raw chunk"),
                             at,

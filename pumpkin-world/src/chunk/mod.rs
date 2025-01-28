@@ -10,9 +10,6 @@ pub mod compression;
 pub mod db;
 pub mod format;
 
-// 1.21.4
-const WORLD_DATA_VERSION: i32 = 4189;
-
 pub const CHUNK_AREA: usize = 16 * 16;
 pub const SUBCHUNK_VOLUME: usize = CHUNK_AREA * 16;
 pub const SUBCHUNKS_COUNT: usize = WORLD_HEIGHT / 16;
