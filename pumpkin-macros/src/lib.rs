@@ -1,6 +1,9 @@
 use proc_macro::TokenStream;
 use quote::quote;
-use syn::{parse::{Nothing, Parser}, parse_macro_input, Field, Fields, ItemStruct};
+use syn::{
+    parse::{Nothing, Parser},
+    parse_macro_input, Field, Fields, ItemStruct,
+};
 
 extern crate proc_macro;
 
@@ -30,7 +33,8 @@ pub fn event(args: TokenStream, item: TokenStream) -> TokenStream {
                 self
             }
         }
-    }.into()
+    }
+    .into()
 }
 
 #[proc_macro_attribute]
@@ -59,7 +63,8 @@ pub fn cancellable(args: TokenStream, input: TokenStream) -> TokenStream {
                 self.cancelled = cancelled;
             }
         }
-    }.into()
+    }
+    .into()
 }
 
 #[proc_macro_attribute]
