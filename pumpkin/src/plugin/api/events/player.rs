@@ -1,6 +1,6 @@
-use std::sync::Arc;
 use pumpkin_macros::{cancellable, Event};
 use pumpkin_util::text::TextComponent;
+use std::sync::Arc;
 
 use crate::entity::player::Player;
 
