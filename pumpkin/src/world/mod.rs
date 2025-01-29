@@ -620,7 +620,7 @@ impl World {
                         .await
                         .fire(ChunkSave {
                             world: player.world().clone(),
-                            position,
+                            chunk: chunk_data.clone(),
                             cancelled: false,
                         })
                         .await;
@@ -631,7 +631,6 @@ impl World {
                             &position
                         );
                         level.clean_chunk(&position).await;
-                        continue;
                     }
                 }
 

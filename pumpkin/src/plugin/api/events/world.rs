@@ -1,6 +1,5 @@
 use crate::world::World;
 use pumpkin_macros::{cancellable, Event};
-use pumpkin_util::math::vector2::Vector2;
 use pumpkin_world::chunk::ChunkData;
 use std::sync::Arc;
 use tokio::sync::RwLock;
@@ -23,5 +22,5 @@ pub struct ChunkSend {
 #[derive(Event, Clone)]
 pub struct ChunkSave {
     pub world: Arc<World>,
-    pub position: Vector2<i32>,
+    pub chunk: Arc<RwLock<ChunkData>>,
 }
