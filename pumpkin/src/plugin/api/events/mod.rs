@@ -2,6 +2,7 @@ use std::any::Any;
 
 pub mod block;
 pub mod player;
+pub mod world;
 
 pub trait Event: Send + Sync {
     fn get_name_static() -> &'static str
