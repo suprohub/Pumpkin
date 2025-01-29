@@ -7,15 +7,12 @@ use syn::{
 
 extern crate proc_macro;
 
-#[proc_macro_attribute]
-pub fn event(args: TokenStream, item: TokenStream) -> TokenStream {
+#[proc_macro_derive(Event)]
+pub fn event(item: TokenStream) -> TokenStream {
     let input = parse_macro_input!(item as ItemStruct);
     let name = &input.ident;
-    let _ = parse_macro_input!(args as Nothing);
 
     quote! {
-        #input
-
         impl crate::plugin::Event for #name {
             fn get_name_static() -> &'static str {
                 stringify!(#name)

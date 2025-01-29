@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use pumpkin_macros::{cancellable, event};
+use pumpkin_macros::{cancellable, Event};
 use pumpkin_world::block::block_registry::Block;
 
 use crate::entity::player::Player;
@@ -9,8 +9,8 @@ pub trait BlockEvent: Send + Sync {
     fn get_block(&self) -> &Block;
 }
 
-#[event]
 #[cancellable]
+#[derive(Event, Clone)]
 pub struct BlockBreakEvent {
     pub player: Option<Arc<Player>>,
     pub block: Block,
@@ -37,8 +37,8 @@ impl BlockEvent for BlockBreakEvent {
     }
 }
 
-#[event]
 #[cancellable]
+#[derive(Event, Clone)]
 pub struct BlockBurnEvent {
     pub igniting_block: Block,
     pub block: Block,
@@ -50,8 +50,8 @@ impl BlockEvent for BlockBurnEvent {
     }
 }
 
-#[event]
 #[cancellable]
+#[derive(Event, Clone)]
 pub struct BlockCanBuildEvent {
     pub block_to_build: Block,
     pub buildable: bool,
@@ -65,8 +65,8 @@ impl BlockEvent for BlockCanBuildEvent {
     }
 }
 
-#[event]
 #[cancellable]
+#[derive(Event, Clone)]
 pub struct BlockPlaceEvent {
     pub player: Arc<Player>,
     pub block_placed: Block,

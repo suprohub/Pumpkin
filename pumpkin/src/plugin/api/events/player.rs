@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use pumpkin_macros::{cancellable, event};
+use pumpkin_macros::{cancellable, Event};
 use pumpkin_util::text::TextComponent;
 
 use crate::entity::player::Player;
@@ -9,8 +9,8 @@ pub trait PlayerEvent: Send + Sync {
     fn get_player(&self) -> &Arc<Player>;
 }
 
-#[event]
 #[cancellable]
+#[derive(Event, Clone)]
 pub struct PlayerJoinEvent {
     pub player: Arc<Player>,
     pub join_message: TextComponent,
@@ -32,8 +32,8 @@ impl PlayerEvent for PlayerJoinEvent {
     }
 }
 
-#[event]
 #[cancellable]
+#[derive(Event, Clone)]
 pub struct PlayerLeaveEvent {
     pub player: Arc<Player>,
     pub leave_message: TextComponent,
