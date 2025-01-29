@@ -631,7 +631,6 @@ impl World {
                             &position
                         );
                         level.clean_chunk(&position).await;
-                        continue;
                     }
                 }
 
