@@ -1,26 +1,27 @@
 use crate::world::World;
 use pumpkin_macros::{cancellable, Event};
-use pumpkin_protocol::client::play::CChunkData;
+use pumpkin_util::math::vector2::Vector2;
 use pumpkin_world::chunk::ChunkData;
 use std::sync::Arc;
+use tokio::sync::RwLock;
 
 #[cancellable]
 #[derive(Event, Clone)]
 pub struct ChunkLoad {
     pub world: Arc<World>,
-    pub chunk: ChunkData,
+    pub chunk: Arc<RwLock<ChunkData>>,
 }
 
 #[cancellable]
 #[derive(Event, Clone)]
 pub struct ChunkSend {
     pub world: Arc<World>,
-    pub chunk: ChunkData,
+    pub chunk: Arc<RwLock<ChunkData>>,
 }
 
 #[cancellable]
 #[derive(Event, Clone)]
 pub struct ChunkSave {
     pub world: Arc<World>,
-    pub chunk: ChunkData,
+    pub position: Vector2<i32>,
 }

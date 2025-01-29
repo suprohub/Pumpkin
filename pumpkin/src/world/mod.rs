@@ -1,4 +1,7 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    collections::HashMap,
+    sync::{atomic::Ordering, Arc},
+};
 
 pub mod level_time;
 pub mod player_chunker;
@@ -10,6 +13,7 @@ use crate::{
     plugin::{
         block::BlockBreakEvent,
         player::{PlayerJoinEvent, PlayerLeaveEvent},
+        world::{ChunkSave, ChunkSend},
     },
     server::Server,
     PLUGIN_MANAGER,
@@ -593,10 +597,12 @@ impl World {
 
         tokio::spawn(async move {
             while let Some(chunk_data) = receiver.recv().await {
-                let chunk_data = chunk_data.read().await;
-                let packet = CChunkData(&chunk_data);
+                let position = chunk_data.read().await.position;
+
                 #[cfg(debug_assertions)]
-                if chunk_data.position == (0, 0).into() {
+                if position == (0, 0).into() {
+                    let binding = chunk_data.read().await;
+                    let packet = CChunkData(&binding);
                     let mut test = bytes::BytesMut::new();
                     packet.write(&mut test);
                     let len = test.len();
@@ -608,21 +614,44 @@ impl World {
                     );
                 }
 
-                if !level.is_chunk_watched(&chunk_data.position) {
-                    log::trace!(
-                        "Received chunk {:?}, but it is no longer watched... cleaning",
-                        &chunk_data.position
-                    );
-                    level.clean_chunk(&chunk_data.position).await;
-                    continue;
+                if !level.is_chunk_watched(&position) {
+                    let event = PLUGIN_MANAGER
+                        .lock()
+                        .await
+                        .fire(ChunkSave {
+                            world: player.world().clone(),
+                            position,
+                            cancelled: false,
+                        })
+                        .await;
+
+                    if !event.cancelled {
+                        log::trace!(
+                            "Received chunk {:?}, but it is no longer watched... cleaning",
+                            &position
+                        );
+                        level.clean_chunk(&position).await;
+                        continue;
+                    }
                 }
 
-                if !player
-                    .client
-                    .closed
-                    .load(std::sync::atomic::Ordering::Relaxed)
-                {
-                    player.client.send_packet(&packet).await;
+                if !player.client.closed.load(Ordering::Relaxed) {
+                    let event = PLUGIN_MANAGER
+                        .lock()
+                        .await
+                        .fire(ChunkSend {
+                            world: player.world().clone(),
+                            chunk: chunk_data,
+                            cancelled: false,
+                        })
+                        .await;
+
+                    if !event.cancelled {
+                        player
+                            .client
+                            .send_packet(&CChunkData(&*event.chunk.read().await))
+                            .await;
+                    }
                 }
             }
 
