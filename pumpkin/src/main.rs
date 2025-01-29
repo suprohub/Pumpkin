@@ -29,6 +29,8 @@
 #![expect(clippy::missing_errors_doc)]
 #![expect(clippy::module_name_repetitions)]
 #![expect(clippy::struct_excessive_bools)]
+// Not warn event sending macros
+#![allow(unused_labels)]
 
 #[cfg(target_os = "wasi")]
 compile_error!("Compiling for WASI targets is not supported!");

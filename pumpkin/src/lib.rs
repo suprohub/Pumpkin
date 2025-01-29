@@ -1,3 +1,6 @@
+// Not warn event sending macros
+#![allow(unused_labels)]
+
 use crate::net::{lan_broadcast, query, rcon::RCONServer, Client};
 use crate::server::{ticker::Ticker, Server};
 use plugin::PluginManager;

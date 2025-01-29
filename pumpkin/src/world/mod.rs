@@ -25,6 +25,7 @@ use pumpkin_data::{
     sound::{Sound, SoundCategory},
     world::WorldEvent,
 };
+use pumpkin_macros::send_cancellable;
 use pumpkin_protocol::client::play::{CBlockUpdate, CDisguisedChatMessage, CRespawn, CWorldEvent};
 use pumpkin_protocol::{
     client::play::CLevelEvent,
@@ -596,7 +597,7 @@ impl World {
         let level = self.level.clone();
 
         tokio::spawn(async move {
-            while let Some((chunk, first_load)) = receiver.recv().await {
+            'main: while let Some((chunk, first_load)) = receiver.recv().await {
                 let position = chunk.read().await.position;
 
                 #[cfg(debug_assertions)]
@@ -617,64 +618,57 @@ impl World {
                 let (world, chunk) = if level.is_chunk_watched(&position) {
                     (player.world().clone(), chunk)
                 } else {
-                    let event = PLUGIN_MANAGER
-                        .lock()
-                        .await
-                        .fire(ChunkSave {
+                    send_cancellable! {{
+                        ChunkSave {
                             world: player.world().clone(),
                             chunk,
                             cancelled: false,
-                        })
-                        .await;
+                        };
 
-                    if !event.cancelled {
-                        log::trace!(
-                            "Received chunk {:?}, but it is no longer watched... cleaning",
-                            &position
-                        );
-                        level.clean_chunk(&position).await;
-                        continue;
-                    }
+                        'after: {
+                            log::trace!(
+                                "Received chunk {:?}, but it is no longer watched... cleaning",
+                                &position
+                            );
+                            level.clean_chunk(&position).await;
+                            continue 'main;
+                        }
+                    }};
                     (event.world, event.chunk)
                 };
 
                 let (world, chunk) = if first_load {
-                    let event = PLUGIN_MANAGER
-                        .lock()
-                        .await
-                        .fire(ChunkLoad {
+                    send_cancellable! {{
+                        ChunkLoad {
                             world,
                             chunk,
                             cancelled: false,
-                        })
-                        .await;
+                        };
 
-                    if event.cancelled {
-                        continue;
-                    }
-
+                        'cancelled: {
+                            continue 'main;
+                        }
+                    }}
                     (event.world, event.chunk)
                 } else {
                     (world, chunk)
                 };
 
                 if !player.client.closed.load(Ordering::Relaxed) {
-                    let event = PLUGIN_MANAGER
-                        .lock()
-                        .await
-                        .fire(ChunkSend {
+                    send_cancellable! {{
+                        ChunkSend {
                             world,
                             chunk,
                             cancelled: false,
-                        })
-                        .await;
+                        };
 
-                    if !event.cancelled {
-                        player
-                            .client
-                            .send_packet(&CChunkData(&*event.chunk.read().await))
-                            .await;
-                    }
+                        'after: {
+                            player
+                                .client
+                                .send_packet(&CChunkData(&*event.chunk.read().await))
+                                .await;
+                        }
+                    }};
                 }
             }
 
