@@ -37,7 +37,7 @@ where
     E: Event + Send + Sync + 'static,
     H: EventHandler<E> + Send + Sync,
 {
-    handler: H,
+    handler: Arc<H>,
     priority: EventPriority,
     blocking: bool,
     _phantom: std::marker::PhantomData<E>,
@@ -218,7 +218,7 @@ impl PluginManager {
 
     pub async fn register<E: Event + 'static, H>(
         &self,
-        handler: H,
+        handler: Arc<H>,
         priority: EventPriority,
         blocking: bool,
     ) where

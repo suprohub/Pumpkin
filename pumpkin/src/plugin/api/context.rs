@@ -54,7 +54,7 @@ impl Context {
 
     pub async fn register_event<E: Event + 'static, H>(
         &self,
-        handler: H,
+        handler: Arc<H>,
         priority: EventPriority,
         blocking: bool,
     ) where
