@@ -46,10 +46,16 @@ pub static LOGGER_IMPL: LazyLock<Option<(Box<dyn Log>, LevelFilter)>> = LazyLock
             logger = logger.without_timestamps();
         }
 
-        Some((Box::new(logger.with_level(LevelFilter::Info)
-            .with_colors(ADVANCED_CONFIG.logging.color)
-            .with_threads(ADVANCED_CONFIG.logging.threads)
-            .env()), LevelFilter::Info))
+        Some((
+            Box::new(
+                logger
+                    .with_level(LevelFilter::Info)
+                    .with_colors(ADVANCED_CONFIG.logging.color)
+                    .with_threads(ADVANCED_CONFIG.logging.threads)
+                    .env(),
+            ),
+            LevelFilter::Info,
+        ))
     } else {
         None
     }
