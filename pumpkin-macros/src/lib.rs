@@ -43,7 +43,10 @@ pub fn cancellable(args: TokenStream, input: TokenStream) -> TokenStream {
     if let Fields::Named(ref mut fields) = item_struct.fields {
         fields.named.push(
             Field::parse_named
-                .parse2(quote! { pub cancelled: bool })
+                .parse2(quote! {
+                    /// A boolean indicating cancel state of the event.
+                    pub cancelled: bool
+                })
                 .unwrap(),
         );
     }
