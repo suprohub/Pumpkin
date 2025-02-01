@@ -86,7 +86,10 @@ pub struct BasicConfiguration {
     pub encryption: bool,
     /// The server's description displayed on the status screen.
     pub motd: String,
+    /// The server's ticks per second.
     pub tps: f32,
+    /// Client packets buffer size. You can set higher values if trafic is intense.
+    pub client_buffer_size: usize,
     /// The default game mode for players.
     pub default_gamemode: GameMode,
     /// Whether to remove IPs from logs or not
@@ -113,6 +116,7 @@ impl Default for BasicConfiguration {
             encryption: true,
             motd: "A Blazing fast Pumpkin Server!".to_string(),
             tps: 20.0,
+            client_buffer_size: 128,
             default_gamemode: GameMode::Survival,
             scrub_ips: true,
             use_favicon: true,
