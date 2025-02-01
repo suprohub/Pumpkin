@@ -2,7 +2,6 @@ use pumpkin_macros::{cancellable, Event};
 use pumpkin_world::block::registry::Block;
 use std::sync::Arc;
 
-
 use crate::entity::player::Player;
 
 /// A trait representing events related to blocks.
