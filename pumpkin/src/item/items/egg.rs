@@ -29,9 +29,7 @@ impl PumpkinItem for EggItem {
         // TODO: Implement eggs the right way, so there is a chance of spawning chickens
         let entity = server.add_entity(position, EntityType::Egg, world);
         let snowball = ThrownItem::new(entity, &player.living_entity.entity);
-        let yaw = player.living_entity.entity.yaw.load();
-        let pitch = player.living_entity.entity.pitch.load();
-        snowball.set_velocity_from(&player.living_entity.entity, pitch, yaw, 0.0, POWER, 1.0);
+        snowball.set_velocity_shooter_rot(&player.living_entity.entity, POWER, 1.0);
         world.spawn_entity(Arc::new(snowball)).await;
     }
 }
