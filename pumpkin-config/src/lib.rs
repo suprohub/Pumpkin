@@ -88,6 +88,8 @@ pub struct BasicConfiguration {
     pub motd: String,
     /// The server's ticks per second.
     pub tps: f32,
+    /// The buffer size of client mpsc. Higher values useful for intensive traffic, but consumes more ram.
+    pub client_buffer_size: usize,
     /// The default game mode for players.
     pub default_gamemode: GameMode,
     /// Whether to remove IPs from logs or not
@@ -114,6 +116,7 @@ impl Default for BasicConfiguration {
             encryption: true,
             motd: "A Blazing fast Pumpkin Server!".to_string(),
             tps: 20.0,
+            client_buffer_size: 64,
             default_gamemode: GameMode::Survival,
             scrub_ips: true,
             use_favicon: true,

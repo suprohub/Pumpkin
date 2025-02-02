@@ -166,7 +166,7 @@ impl PumpkinServer {
                 id
             );
 
-            let (tx, mut rx) = tokio::sync::mpsc::channel(64);
+            let (tx, mut rx) = tokio::sync::mpsc::channel(BASIC_CONFIG.client_buffer_size);
             let (connection_reader, connection_writer) = connection.into_split();
             let connection_reader = Arc::new(Mutex::new(connection_reader));
             let connection_writer = Arc::new(Mutex::new(connection_writer));
