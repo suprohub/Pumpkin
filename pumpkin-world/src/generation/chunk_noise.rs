@@ -2,7 +2,7 @@ use std::{collections::HashMap, hash::Hash, mem, num::Wrapping, ops::AddAssign, 
 
 use num_traits::Zero;
 use pumpkin_macros::block_state;
-use pumpkin_util::math::{floor_div, vector2::Vector2, vector3::Vector3};
+use pumpkin_util::math::{floor_div, vector2::Vector2, vector3::Vec3};
 
 use crate::{
     block::BlockState,
@@ -850,9 +850,9 @@ pub const CHUNK_DIM: u8 = 16;
 
 #[derive(PartialEq, Eq, Clone, Hash, Default)]
 pub struct ChunkNoiseState {
-    cell_block_pos: Vector3<u8>,
+    cell_block_pos: Vec3<u8>,
     start_cell_pos: Vector2<i32>,
-    start_block_pos: Vector3<i32>,
+    start_block_pos: Vec3<i32>,
     start_biome_pos: Vector2<i32>,
 
     height: u16,
@@ -1041,8 +1041,8 @@ impl ChunkNoiseGenerator {
             ),
         );
 
-        let start_block_pos = Vector3::new(0, 0, 0);
-        let cell_block_pos = Vector3::new(0, 0, 0);
+        let start_block_pos = Vec3::new(0, 0, 0);
+        let cell_block_pos = Vec3::new(0, 0, 0);
         let biome_pos = Vector2::new(
             biome_coords::from_block(start_block_x),
             biome_coords::from_block(start_block_z),

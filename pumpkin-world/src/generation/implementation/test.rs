@@ -6,7 +6,7 @@ use std::{
 use dashmap::{DashMap, Entry};
 use num_traits::Zero;
 use pumpkin_data::chunk::Biome;
-use pumpkin_util::math::{vector2::Vector2, vector3::Vector3};
+use pumpkin_util::math::{vector2::Vector2, vector3::Vec3};
 
 use crate::{
     block::state::BlockState,
@@ -63,7 +63,7 @@ impl<B: BiomeGenerator, T: TerrainGenerator> WorldGenerator for TestGenerator<B,
 
                     let block = self.terrain_generator.generate_block(
                         &at,
-                        Vector3::new(x.into(), y.into(), z.into()),
+                        Vec3::new(x.into(), y.into(), z.into()),
                         biome,
                     );
 
@@ -145,7 +145,7 @@ impl TerrainGenerator for TestTerrainGenerator {
     fn generate_block(
         &self,
         chunk_pos: &Vector2<i32>,
-        local_pos: Vector3<i32>,
+        local_pos: Vec3<i32>,
         _: Biome,
     ) -> BlockState {
         if let Some(entry) = self.chunks.get(chunk_pos) {

@@ -1,7 +1,7 @@
 use enum_dispatch::enum_dispatch;
 use num_traits::PrimInt;
 use pumpkin_util::{
-    math::{floor_div, vector2::Vector2, vector3::Vector3},
+    math::{floor_div, vector2::Vector2, vector3::Vec3},
     random::RandomDeriver,
 };
 
@@ -160,7 +160,7 @@ impl WorldAquiferSampler {
 
                     let index = (offset_y * size_z + offset_z) * size_x + offset_x;
                     packed_positions[index] =
-                        block_pos::packed(&Vector3::new(rand_x, rand_y, rand_z));
+                        block_pos::packed(&Vec3::new(rand_x, rand_y, rand_z));
                 }
             }
         }

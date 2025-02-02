@@ -50,7 +50,7 @@ use pumpkin_util::{
         experience,
         position::BlockPos,
         vector2::Vector2,
-        vector3::Vector3,
+        vector3::Vec3,
     },
     permission::PermissionLvl,
     text::TextComponent,
@@ -118,7 +118,7 @@ pub struct Player {
     /// A counter for teleport IDs used to track pending teleports.
     pub teleport_id_count: AtomicI32,
     /// The pending teleport information, including the teleport ID and target location.
-    pub awaiting_teleport: Mutex<Option<(VarInt, Vector3<f64>)>>,
+    pub awaiting_teleport: Mutex<Option<(VarInt, Vec3<f64>)>>,
     /// The coordinates of the chunk section the player is currently watching.
     pub watched_section: AtomicCell<Cylindrical>,
     /// Did we send a keep alive Packet and wait for the response?
@@ -178,7 +178,7 @@ impl Player {
                 entity_id,
                 player_uuid,
                 world,
-                Vector3::new(0.0, 0.0, 0.0),
+                Vec3::new(0.0, 0.0, 0.0),
                 EntityType::Player,
                 1.62,
                 AtomicCell::new(BoundingBox::new_default(&bounding_box_size)),
@@ -393,7 +393,7 @@ impl Player {
         &self,
         sound_id: u16,
         category: SoundCategory,
-        position: Vector3<f64>,
+        position: Vec3<f64>,
         volume: f32,
         pitch: f32,
         seed: f64,
@@ -482,7 +482,7 @@ impl Player {
         &self.living_entity.entity.world
     }
 
-    pub fn position(&self) -> Vector3<f64> {
+    pub fn position(&self) -> Vec3<f64> {
         self.living_entity.entity.pos.load()
     }
 
@@ -559,7 +559,7 @@ impl Player {
     /// Yaw and Pitch in degrees
     /// Rarly used, For example when waking up player from bed or first time spawn. Otherwise entity teleport is used
     /// Player should respond with the `SConfirmTeleport` packet
-    pub async fn request_teleport(&self, position: Vector3<f64>, yaw: f32, pitch: f32) {
+    pub async fn request_teleport(&self, position: Vec3<f64>, yaw: f32, pitch: f32) {
         // this is the ultra special magic code used to create the teleport id
         // This returns the old value
         // This operation wraps around on overflow.
@@ -575,7 +575,7 @@ impl Player {
             .send_packet(&CPlayerPosition::new(
                 teleport_id.into(),
                 position,
-                Vector3::new(0.0, 0.0, 0.0),
+                Vec3::new(0.0, 0.0, 0.0),
                 yaw,
                 pitch,
                 // TODO
@@ -597,7 +597,7 @@ impl Player {
         let box_pos = BoundingBox::from_block(pos);
         let entity_pos = self.living_entity.entity.pos.load();
         let standing_eye_height = self.living_entity.entity.standing_eye_height;
-        box_pos.squared_magnitude(Vector3 {
+        box_pos.squared_magnitude(Vec3 {
             x: entity_pos.x,
             y: entity_pos.y + f64::from(standing_eye_height),
             z: entity_pos.z,

@@ -1,4 +1,4 @@
-use pumpkin_util::math::{vector2::Vector2, vector3::Vector3};
+use pumpkin_util::math::{vector2::Vector2, vector3::Vec3};
 
 use crate::{
     block::BlockState,
@@ -90,7 +90,7 @@ impl ProtoChunk {
     }
 
     #[inline]
-    fn local_pos_to_index(&self, local_pos: &Vector3<i32>) -> usize {
+    fn local_pos_to_index(&self, local_pos: &Vec3<i32>) -> usize {
         #[cfg(debug_assertions)]
         {
             assert!(local_pos.x >= 0 && local_pos.x <= 15);
@@ -103,8 +103,8 @@ impl ProtoChunk {
     }
 
     #[inline]
-    pub fn get_block_state(&self, local_pos: &Vector3<i32>) -> BlockState {
-        let local_pos = Vector3::new(
+    pub fn get_block_state(&self, local_pos: &Vec3<i32>) -> BlockState {
+        let local_pos = Vec3::new(
             local_pos.x & 15,
             local_pos.y - self.sampler.min_y() as i32,
             local_pos.z & 15,
@@ -166,7 +166,7 @@ impl ProtoChunk {
                                         self.sampler.sample_block_state().unwrap_or(STONE_BLOCK);
                                     //log::debug!("Sampled block state in {:?}", inst.elapsed());
 
-                                    let local_pos = Vector3 {
+                                    let local_pos = Vec3 {
                                         x: block_x & 15,
                                         y: block_y - min_y as i32,
                                         z: block_z & 15,

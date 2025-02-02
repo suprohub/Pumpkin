@@ -45,7 +45,7 @@ impl TerrainGenerator for SuperflatTerrainGenerator {
     fn generate_block(
         &self,
         _chunk_pos: &Vector2<i32>,
-        _at: pumpkin_util::math::vector3::Vector3<i32>,
+        _at: pumpkin_util::math::vector3::Vec3<i32>,
         _biome: Biome,
     ) -> BlockState {
         todo!()

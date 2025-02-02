@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use pumpkin_protocol::client::play::{ArgumentType, CommandSuggestion, SuggestionProviders};
 use pumpkin_util::math::vector2::Vector2;
-use pumpkin_util::math::vector3::Vector3;
+use pumpkin_util::math::vector3::Vec3;
 
 use crate::command::dispatcher::CommandError;
 use crate::command::tree::RawArgs;
@@ -62,7 +62,7 @@ impl MaybeRelativePosition2D {
         Some(Self(x.try_into().ok()?, z.try_into().ok()?))
     }
 
-    fn try_to_absolute(self, origin: Option<Vector3<f64>>) -> Option<Vector2<f64>> {
+    fn try_to_absolute(self, origin: Option<Vec3<f64>>) -> Option<Vector2<f64>> {
         Some(Vector2::new(
             self.0.into_absolute(origin.map(|o| o.x))?,
             self.1.into_absolute(origin.map(|o| o.z))?,

@@ -6,7 +6,7 @@ use pumpkin_data::sound::SoundCategory;
 use pumpkin_protocol::client::play::{ArgumentType, CommandSuggestion, SuggestionProviders};
 use pumpkin_util::text::TextComponent;
 use pumpkin_util::{
-    math::{position::BlockPos, vector2::Vector2, vector3::Vector3},
+    math::{position::BlockPos, vector2::Vector2, vector3::Vec3},
     GameMode,
 };
 
@@ -80,7 +80,7 @@ pub enum Arg<'a> {
     Entity(Arc<Player>),
     Players(Vec<Arc<Player>>),
     BlockPos(BlockPos),
-    Pos3D(Vector3<f64>),
+    Pos3D(Vec3<f64>),
     Pos2D(Vector2<f64>),
     Rotation(f32, f32),
     GameMode(GameMode),

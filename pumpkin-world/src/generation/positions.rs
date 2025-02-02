@@ -1,7 +1,7 @@
 use pumpkin_util::math::{floor_log2, smallest_encompassing_power_of_two};
 
 pub mod block_pos {
-    use pumpkin_util::math::vector3::Vector3;
+    use pumpkin_util::math::vector3::Vec3;
 
     use super::{
         BITS_X, BITS_Y, BITS_Z, BIT_SHIFT_X, BIT_SHIFT_Z, SIZE_BITS_X, SIZE_BITS_Y, SIZE_BITS_Z,
@@ -23,7 +23,7 @@ pub mod block_pos {
     }
 
     #[inline]
-    pub const fn packed(vec: &Vector3<i32>) -> i64 {
+    pub const fn packed(vec: &Vec3<i32>) -> i64 {
         let mut result = 0i64;
         // Need to go to i64 first to conserve sign
         result |= (vec.x as i64 & BITS_X as i64) << BIT_SHIFT_X;
@@ -89,7 +89,7 @@ pub const MIN_HEIGHT_CELL: i32 = MIN_HEIGHT << 4;
 
 #[cfg(test)]
 mod test {
-    use pumpkin_util::math::{vector2::Vector2, vector3::Vector3};
+    use pumpkin_util::math::{vector2::Vector2, vector3::Vec3};
 
     use super::{block_pos, chunk_pos};
 
@@ -104,7 +104,7 @@ mod test {
 
     #[test]
     fn test_block_packing() {
-        let pos = Vector3::new(-30000000, 120, 30000000);
+        let pos = Vec3::new(-30000000, 120, 30000000);
         let packed = block_pos::packed(&pos);
         assert_eq!(packed, -8246337085439999880i64);
         assert_eq!(pos.x, block_pos::unpack_x(packed));
@@ -114,7 +114,7 @@ mod test {
         for x in -10..=10 {
             for y in -10..=10 {
                 for z in -10..=10 {
-                    let pos = Vector3::new(x * 1000000, y * 10, z * 1000000);
+                    let pos = Vec3::new(x * 1000000, y * 10, z * 1000000);
                     let packed = block_pos::packed(&pos);
                     assert_eq!(pos.x, block_pos::unpack_x(packed));
                     assert_eq!(pos.y, block_pos::unpack_y(packed));

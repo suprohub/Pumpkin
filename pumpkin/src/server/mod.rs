@@ -11,7 +11,7 @@ use pumpkin_registry::{DimensionType, Registry};
 use pumpkin_util::math::boundingbox::{BoundingBox, BoundingBoxSize};
 use pumpkin_util::math::position::BlockPos;
 use pumpkin_util::math::vector2::Vector2;
-use pumpkin_util::math::vector3::Vector3;
+use pumpkin_util::math::vector3::Vec3;
 use pumpkin_util::text::TextComponent;
 use pumpkin_util::GameMode;
 use pumpkin_world::block::registry::Block;
@@ -218,7 +218,7 @@ impl Server {
     /// - `Uuid`: The uuid of the newly created living entity to be used to send to the client.
     pub fn add_entity(
         &self,
-        position: Vector3<f64>,
+        position: Vec3<f64>,
         entity_type: EntityType,
         world: &Arc<World>,
     ) -> Entity {

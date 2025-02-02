@@ -1,4 +1,4 @@
-use pumpkin_util::math::vector3::Vector3;
+use pumpkin_util::math::vector3::Vec3;
 
 use super::{living::LivingEntity, Entity, EntityBase};
 
@@ -18,7 +18,7 @@ impl ThrownItem {
         self.set_velocity_shooter(shooter, shooter.rotation_vec() * power, divergence);
     }
 
-    pub fn set_velocity_shooter(&self, shooter: &Entity, velocity: Vector3<f32>, divergence: f32) {
+    pub fn set_velocity_shooter(&self, shooter: &Entity, velocity: Vec3<f32>, divergence: f32) {
         self.set_velocity_unstable(velocity.to_f64(), f64::from(divergence));
         let shooter_vel = shooter.velocity.load();
         self.entity
@@ -35,7 +35,7 @@ impl ThrownItem {
     }
 
     /// Velocity will be set a bit randomly
-    pub fn set_velocity_unstable(&self, velocity: Vector3<f64>, uncertainty: f64) {
+    pub fn set_velocity_unstable(&self, velocity: Vec3<f64>, uncertainty: f64) {
         fn next_triangular(mode: f64, deviation: f64) -> f64 {
             mode + deviation * (rand::random::<f64>() - rand::random::<f64>())
         }
@@ -48,7 +48,7 @@ impl ThrownItem {
     }
 
     /// Velocity will be set normally
-    pub fn set_velocity(&self, velocity: Vector3<f64>) {
+    pub fn set_velocity(&self, velocity: Vec3<f64>) {
         self.entity.velocity.store(velocity);
         self.entity.set_rotation_vec(velocity.as_f32());
     }

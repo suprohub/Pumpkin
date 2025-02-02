@@ -2,7 +2,7 @@ use std::ops::{Add, Div, Mul, Neg, Sub};
 
 use num_traits::Float;
 
-use super::vector3::Vector3;
+use super::vector3::Vec3;
 
 #[derive(Clone, Copy, Debug, PartialEq, Hash, Eq, Default)]
 pub struct Vector2<T> {
@@ -92,8 +92,8 @@ impl<T> From<(T, T)> for Vector2<T> {
     }
 }
 
-impl<T> From<Vector3<T>> for Vector2<T> {
-    fn from(value: Vector3<T>) -> Self {
+impl<T> From<Vec3<T>> for Vector2<T> {
+    fn from(value: Vec3<T>) -> Self {
         Self {
             x: value.x,
             z: value.z,
