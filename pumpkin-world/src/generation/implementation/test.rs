@@ -142,12 +142,7 @@ impl TerrainGenerator for TestTerrainGenerator {
     }
 
     // TODO allow specifying which blocks should be at which height in the config.
-    fn generate_block(
-        &self,
-        chunk_pos: &Vec2<i32>,
-        local_pos: Vec3<i32>,
-        _: Biome,
-    ) -> BlockState {
+    fn generate_block(&self, chunk_pos: &Vec2<i32>, local_pos: Vec3<i32>, _: Biome) -> BlockState {
         if let Some(entry) = self.chunks.get(chunk_pos) {
             entry.0.get_block_state(&local_pos)
         } else {

@@ -158,52 +158,20 @@ pub fn evaluate_property_waterlogged(block: &Block) -> String {
 fn calculate_positions(player_direction: &Direction, block_pos: &BlockPos) -> (BlockPos, BlockPos) {
     match player_direction {
         Direction::North => (
-            BlockPos(Vec3::new(
-                block_pos.0.x,
-                block_pos.0.y,
-                block_pos.0.z - 1,
-            )),
-            BlockPos(Vec3::new(
-                block_pos.0.x,
-                block_pos.0.y,
-                block_pos.0.z + 1,
-            )),
+            BlockPos(Vec3::new(block_pos.0.x, block_pos.0.y, block_pos.0.z - 1)),
+            BlockPos(Vec3::new(block_pos.0.x, block_pos.0.y, block_pos.0.z + 1)),
         ),
         Direction::South => (
-            BlockPos(Vec3::new(
-                block_pos.0.x,
-                block_pos.0.y,
-                block_pos.0.z + 1,
-            )),
-            BlockPos(Vec3::new(
-                block_pos.0.x,
-                block_pos.0.y,
-                block_pos.0.z - 1,
-            )),
+            BlockPos(Vec3::new(block_pos.0.x, block_pos.0.y, block_pos.0.z + 1)),
+            BlockPos(Vec3::new(block_pos.0.x, block_pos.0.y, block_pos.0.z - 1)),
         ),
         Direction::East => (
-            BlockPos(Vec3::new(
-                block_pos.0.x + 1,
-                block_pos.0.y,
-                block_pos.0.z,
-            )),
-            BlockPos(Vec3::new(
-                block_pos.0.x - 1,
-                block_pos.0.y,
-                block_pos.0.z,
-            )),
+            BlockPos(Vec3::new(block_pos.0.x + 1, block_pos.0.y, block_pos.0.z)),
+            BlockPos(Vec3::new(block_pos.0.x - 1, block_pos.0.y, block_pos.0.z)),
         ),
         Direction::West => (
-            BlockPos(Vec3::new(
-                block_pos.0.x - 1,
-                block_pos.0.y,
-                block_pos.0.z,
-            )),
-            BlockPos(Vec3::new(
-                block_pos.0.x + 1,
-                block_pos.0.y,
-                block_pos.0.z,
-            )),
+            BlockPos(Vec3::new(block_pos.0.x - 1, block_pos.0.y, block_pos.0.z)),
+            BlockPos(Vec3::new(block_pos.0.x + 1, block_pos.0.y, block_pos.0.z)),
         ),
     }
 }

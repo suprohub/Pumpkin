@@ -332,10 +332,7 @@ pub struct ChunkStatusWrapper {
 }
 
 impl ChunkData {
-    pub fn from_bytes(
-        chunk_data: &[u8],
-        position: Vec2<i32>,
-    ) -> Result<Self, ChunkParsingError> {
+    pub fn from_bytes(chunk_data: &[u8], position: Vec2<i32>) -> Result<Self, ChunkParsingError> {
         if fastnbt::from_bytes::<ChunkStatusWrapper>(chunk_data)
             .map_err(|_| ChunkParsingError::FailedReadStatus)?
             .status
