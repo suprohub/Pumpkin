@@ -1,7 +1,7 @@
 use enum_dispatch::enum_dispatch;
 use num_traits::PrimInt;
 use pumpkin_util::{
-    math::{floor_div, vector2::Vector2, vector3::Vec3},
+    math::{floor_div, vector2::Vec2, vector3::Vec3},
     random::RandomDeriver,
 };
 
@@ -99,25 +99,25 @@ pub struct WorldAquiferSampler {
 }
 
 impl WorldAquiferSampler {
-    const CHUNK_POS_OFFSETS: [Vector2<i8>; 13] = [
-        Vector2::new(0, 0),
-        Vector2::new(-2, -1),
-        Vector2::new(-1, -1),
-        Vector2::new(0, -1),
-        Vector2::new(1, -1),
-        Vector2::new(-3, 0),
-        Vector2::new(-2, 0),
-        Vector2::new(-1, 0),
-        Vector2::new(1, 0),
-        Vector2::new(-2, 1),
-        Vector2::new(-1, 1),
-        Vector2::new(0, 1),
-        Vector2::new(1, 1),
+    const CHUNK_POS_OFFSETS: [Vec2<i8>; 13] = [
+        Vec2::new(0, 0),
+        Vec2::new(-2, -1),
+        Vec2::new(-1, -1),
+        Vec2::new(0, -1),
+        Vec2::new(1, -1),
+        Vec2::new(-3, 0),
+        Vec2::new(-2, 0),
+        Vec2::new(-1, 0),
+        Vec2::new(1, 0),
+        Vec2::new(-2, 1),
+        Vec2::new(-1, 1),
+        Vec2::new(0, 1),
+        Vec2::new(1, 1),
     ];
 
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        chunk_pos: Vector2<i32>,
+        chunk_pos: Vec2<i32>,
         barrier_noise: Box<dyn ComponentReference<ChunkNoiseState>>,
         fluid_level_floodedness: Box<dyn ComponentReference<ChunkNoiseState>>,
         fluid_level_spread: Box<dyn ComponentReference<ChunkNoiseState>>,
@@ -657,7 +657,7 @@ pub trait AquiferSamplerImpl {
 
 #[cfg(test)]
 mod test {
-    use pumpkin_util::math::vector2::Vector2;
+    use pumpkin_util::math::vector2::Vec2;
 
     use crate::{
         block::BlockState,
@@ -685,7 +685,7 @@ mod test {
         ChunkNoiseState,
     ) {
         let shape = GenerationShape::SURFACE;
-        let chunk_pos = Vector2::new(7, 4);
+        let chunk_pos = Vec2::new(7, 4);
         let config = NoiseConfig::new(0, &OVERWORLD_NOISE_ROUTER);
         let sampler = FluidLevelSampler::Chunk(StandardChunkFluidLevelSampler::new(
             FluidLevel::new(63, WATER_BLOCK),

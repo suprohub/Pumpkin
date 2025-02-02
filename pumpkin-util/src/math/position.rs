@@ -1,7 +1,7 @@
 use super::vector3::Vec3;
 use std::fmt;
 
-use crate::math::vector2::Vector2;
+use crate::math::vector2::Vec2;
 use num_traits::Euclid;
 use serde::{Deserialize, Serialize};
 
@@ -10,10 +10,10 @@ use serde::{Deserialize, Serialize};
 pub struct BlockPos(pub Vec3<i32>);
 
 impl BlockPos {
-    pub fn chunk_and_chunk_relative_position(&self) -> (Vector2<i32>, Vec3<i32>) {
+    pub fn chunk_and_chunk_relative_position(&self) -> (Vec2<i32>, Vec3<i32>) {
         let (z_chunk, z_rem) = self.0.z.div_rem_euclid(&16);
         let (x_chunk, x_rem) = self.0.x.div_rem_euclid(&16);
-        let chunk_coordinate = Vector2 {
+        let chunk_coordinate = Vec2 {
             x: x_chunk,
             z: z_chunk,
         };

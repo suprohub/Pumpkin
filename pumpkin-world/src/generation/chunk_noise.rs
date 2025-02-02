@@ -2,7 +2,7 @@ use std::{collections::HashMap, hash::Hash, mem, num::Wrapping, ops::AddAssign, 
 
 use num_traits::Zero;
 use pumpkin_macros::block_state;
-use pumpkin_util::math::{floor_div, vector2::Vector2, vector3::Vec3};
+use pumpkin_util::math::{floor_div, vector2::Vec2, vector3::Vec3};
 
 use crate::{
     block::BlockState,
@@ -356,7 +356,7 @@ impl<R: ComponentReference<ChunkNoiseState>> MutableComponentFunctionImpl<ChunkN
         let block_z = pos.z();
 
         // This is the chunk packing function, but we use it for block positions here
-        let hash = chunk_pos::packed(&Vector2::new(block_x, block_z));
+        let hash = chunk_pos::packed(&Vec2::new(block_x, block_z));
 
         if hash == self.last_sampled_column {
             self.last_result
@@ -851,9 +851,9 @@ pub const CHUNK_DIM: u8 = 16;
 #[derive(PartialEq, Eq, Clone, Hash, Default)]
 pub struct ChunkNoiseState {
     cell_block_pos: Vec3<u8>,
-    start_cell_pos: Vector2<i32>,
+    start_cell_pos: Vec2<i32>,
     start_block_pos: Vec3<i32>,
-    start_biome_pos: Vector2<i32>,
+    start_biome_pos: Vec2<i32>,
 
     height: u16,
     vertical_cell_count: u16,
@@ -913,7 +913,7 @@ impl ChunkNoiseDensityFunctions {
     ) -> i32 {
         let biome_aligned_x = biome_coords::to_block(biome_coords::from_block(block_x));
         let biome_aligned_z = biome_coords::to_block(biome_coords::from_block(block_z));
-        let packed = chunk_pos::packed(&Vector2::new(biome_aligned_x, biome_aligned_z));
+        let packed = chunk_pos::packed(&Vec2::new(biome_aligned_x, biome_aligned_z));
 
         if let Some(estimate) = self.surface_height_estimate.get(&packed) {
             *estimate
@@ -1030,7 +1030,7 @@ impl ChunkNoiseGenerator {
         aquifers: bool,
         ore_veins: bool,
     ) -> Self {
-        let start_cell_pos = Vector2::new(
+        let start_cell_pos = Vec2::new(
             floor_div(
                 start_block_x,
                 generation_shape.horizontal_cell_block_count() as i32,
@@ -1043,7 +1043,7 @@ impl ChunkNoiseGenerator {
 
         let start_block_pos = Vec3::new(0, 0, 0);
         let cell_block_pos = Vec3::new(0, 0, 0);
-        let biome_pos = Vector2::new(
+        let biome_pos = Vec2::new(
             biome_coords::from_block(start_block_x),
             biome_coords::from_block(start_block_z),
         );
@@ -1118,7 +1118,7 @@ impl ChunkNoiseGenerator {
             let section_x = section_coords::block_to_section(start_block_x);
             let section_z = section_coords::block_to_section(start_block_z);
             AquiferSampler::Aquifier(WorldAquiferSampler::new(
-                Vector2::new(section_x, section_z),
+                Vec2::new(section_x, section_z),
                 router.barrier,
                 router.fluid_level_floodedness,
                 router.fluid_level_spread,
@@ -1377,7 +1377,7 @@ impl ChunkNoiseGenerator {
 
 #[cfg(test)]
 mod test {
-    use pumpkin_util::math::vector2::Vector2;
+    use pumpkin_util::math::vector2::Vec2;
 
     use crate::generation::{
         aquifer_sampler::{FluidLevel, FluidLevelSampler},
@@ -1392,7 +1392,7 @@ mod test {
     #[test]
     fn test_estimate_height() {
         let shape = GenerationShape::SURFACE;
-        let chunk_pos = Vector2::new(7, 4);
+        let chunk_pos = Vec2::new(7, 4);
         let config = NoiseConfig::new(0, &OVERWORLD_NOISE_ROUTER);
         let sampler = FluidLevelSampler::Chunk(StandardChunkFluidLevelSampler::new(
             FluidLevel::new(63, WATER_BLOCK),

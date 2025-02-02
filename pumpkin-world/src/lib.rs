@@ -5,7 +5,7 @@ use generation::{
     noise::{config::NoiseConfig, router::OVERWORLD_NOISE_ROUTER},
     proto_chunk::{ProtoChunk, StandardChunkFluidLevelSampler},
 };
-use pumpkin_util::math::vector2::Vector2;
+use pumpkin_util::math::vector2::Vec2;
 
 pub mod biome;
 pub mod block;
@@ -66,6 +66,6 @@ pub fn bench_create_chunk_noise_overworld() {
 }
 
 pub fn bench_create_and_populate_noise() {
-    let mut chunk = ProtoChunk::new(Vector2::new(0, 0), 0);
+    let mut chunk = ProtoChunk::new(Vec2::new(0, 0), 0);
     chunk.populate_noise();
 }

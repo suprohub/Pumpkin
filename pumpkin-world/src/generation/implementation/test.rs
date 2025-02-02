@@ -6,7 +6,7 @@ use std::{
 use dashmap::{DashMap, Entry};
 use num_traits::Zero;
 use pumpkin_data::chunk::Biome;
-use pumpkin_util::math::{vector2::Vector2, vector3::Vec3};
+use pumpkin_util::math::{vector2::Vec2, vector3::Vec3};
 
 use crate::{
     block::state::BlockState,
@@ -39,7 +39,7 @@ impl<B: BiomeGenerator + GeneratorInit, T: TerrainGenerator + GeneratorInit> Gen
 }
 
 impl<B: BiomeGenerator, T: TerrainGenerator> WorldGenerator for TestGenerator<B, T> {
-    fn generate_chunk(&self, at: Vector2<i32>) -> ChunkData {
+    fn generate_chunk(&self, at: Vec2<i32>) -> ChunkData {
         let mut subchunks = Subchunks::Single(0);
         self.terrain_generator.prepare_chunk(&at);
 
@@ -98,7 +98,7 @@ impl BiomeGenerator for TestBiomeGenerator {
 }
 
 pub(crate) struct TestTerrainGenerator {
-    chunks: DashMap<Vector2<i32>, (ProtoChunk, Wrapping<u8>)>,
+    chunks: DashMap<Vec2<i32>, (ProtoChunk, Wrapping<u8>)>,
     seed: Seed,
 }
 
@@ -112,7 +112,7 @@ impl GeneratorInit for TestTerrainGenerator {
 }
 
 impl TerrainGenerator for TestTerrainGenerator {
-    fn prepare_chunk(&self, at: &Vector2<i32>) {
+    fn prepare_chunk(&self, at: &Vec2<i32>) {
         let entry = self.chunks.entry(*at);
         match entry {
             Entry::Vacant(entry) => {
@@ -130,7 +130,7 @@ impl TerrainGenerator for TestTerrainGenerator {
         }
     }
 
-    fn clean_chunk(&self, at: &Vector2<i32>) {
+    fn clean_chunk(&self, at: &Vec2<i32>) {
         let entry = self.chunks.entry(*at);
         if let Entry::Occupied(mut entry) = entry {
             let (_, count) = entry.get_mut();
@@ -144,7 +144,7 @@ impl TerrainGenerator for TestTerrainGenerator {
     // TODO allow specifying which blocks should be at which height in the config.
     fn generate_block(
         &self,
-        chunk_pos: &Vector2<i32>,
+        chunk_pos: &Vec2<i32>,
         local_pos: Vec3<i32>,
         _: Biome,
     ) -> BlockState {

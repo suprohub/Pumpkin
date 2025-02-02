@@ -36,7 +36,7 @@ use pumpkin_protocol::{
     ClientPacket,
 };
 use pumpkin_registry::DimensionType;
-use pumpkin_util::math::vector2::Vector2;
+use pumpkin_util::math::vector2::Vec2;
 use pumpkin_util::math::{position::BlockPos, vector3::Vec3};
 use pumpkin_util::text::{color::NamedColor, TextComponent};
 use pumpkin_world::chunk::ChunkData;
@@ -266,7 +266,7 @@ impl World {
     }
 
     /// Gets the y position of the first non air block from the top down
-    pub async fn get_top_block(&self, position: Vector2<i32>) -> i32 {
+    pub async fn get_top_block(&self, position: Vec2<i32>) -> i32 {
         for y in (-64..=319).rev() {
             let pos = BlockPos(Vec3::new(position.x, y, position.z));
             let block = self.get_block_state(&pos).await;
@@ -335,7 +335,7 @@ impl World {
         let pitch = 10.0;
 
         let top = self
-            .get_top_block(Vector2::new(position.x as i32, position.z as i32))
+            .get_top_block(Vec2::new(position.x as i32, position.z as i32))
             .await;
         position.y = f64::from(top + 1);
 
@@ -506,7 +506,7 @@ impl World {
         let pitch = 10.0;
 
         let top = self
-            .get_top_block(Vector2::new(position.x as i32, position.z as i32))
+            .get_top_block(Vec2::new(position.x as i32, position.z as i32))
             .await;
         position.y = f64::from(top + 1);
 
@@ -560,8 +560,8 @@ impl World {
     fn spawn_world_chunks(
         &self,
         player: Arc<Player>,
-        chunks: Vec<Vector2<i32>>,
-        center_chunk: Vector2<i32>,
+        chunks: Vec<Vec2<i32>>,
+        center_chunk: Vec2<i32>,
     ) {
         if player
             .client
@@ -935,7 +935,7 @@ impl World {
     /// handle)
     pub fn receive_chunks(
         &self,
-        chunks: Vec<Vector2<i32>>,
+        chunks: Vec<Vec2<i32>>,
     ) -> Receiver<(Arc<RwLock<ChunkData>>, bool)> {
         let (sender, receive) = mpsc::channel(chunks.len());
         // Put this in another thread so we aren't blocking on it
@@ -947,7 +947,7 @@ impl World {
         receive
     }
 
-    pub async fn receive_chunk(&self, chunk_pos: Vector2<i32>) -> (Arc<RwLock<ChunkData>>, bool) {
+    pub async fn receive_chunk(&self, chunk_pos: Vec2<i32>) -> (Arc<RwLock<ChunkData>>, bool) {
         let mut receiver = self.receive_chunks(vec![chunk_pos]);
         let chunk = receiver
             .recv()

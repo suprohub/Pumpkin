@@ -1,7 +1,7 @@
 use noise::Perlin;
 use pumpkin_data::chunk::Biome;
 use pumpkin_macros::block_state;
-use pumpkin_util::math::vector2::Vector2;
+use pumpkin_util::math::vector2::Vec2;
 use rand::Rng;
 
 use crate::{
@@ -40,7 +40,7 @@ impl GeneratorInit for PlainsTerrainGenerator {
 }
 
 impl PerlinTerrainGenerator for PlainsTerrainGenerator {
-    fn prepare_chunk(&self, _at: &Vector2<i32>, _perlin: &Perlin) {}
+    fn prepare_chunk(&self, _at: &Vec2<i32>, _perlin: &Perlin) {}
     // TODO allow specifying which blocks should be at which height in the config.
     fn generate_block(
         &self,

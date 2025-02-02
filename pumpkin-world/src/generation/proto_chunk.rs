@@ -1,4 +1,4 @@
-use pumpkin_util::math::{vector2::Vector2, vector3::Vec3};
+use pumpkin_util::math::{vector2::Vec2, vector3::Vec3};
 
 use crate::{
     block::BlockState,
@@ -46,7 +46,7 @@ impl FluidLevelSamplerImpl for StandardChunkFluidLevelSampler {
 }
 
 pub struct ProtoChunk {
-    chunk_pos: Vector2<i32>,
+    chunk_pos: Vec2<i32>,
     sampler: ChunkNoiseGenerator,
     // These are local positions
     flat_block_map: Vec<BlockState>,
@@ -54,7 +54,7 @@ pub struct ProtoChunk {
 }
 
 impl ProtoChunk {
-    pub fn new(chunk_pos: Vector2<i32>, seed: u64) -> Self {
+    pub fn new(chunk_pos: Vec2<i32>, seed: u64) -> Self {
         // TODO: Don't hardcode these
 
         let base_router = &OVERWORLD_NOISE_ROUTER;
@@ -216,7 +216,7 @@ impl ProtoChunk {
 mod test {
     use std::{fs, path::Path};
 
-    use pumpkin_util::math::vector2::Vector2;
+    use pumpkin_util::math::vector2::Vec2;
 
     use crate::read_data_from_file;
 
@@ -226,7 +226,7 @@ mod test {
     fn test_no_blend_no_beard() {
         let expected_data: Vec<u16> =
             read_data_from_file!("../../assets/no_blend_no_beard_0_0.chunk");
-        let mut chunk = ProtoChunk::new(Vector2::new(0, 0), 0);
+        let mut chunk = ProtoChunk::new(Vec2::new(0, 0), 0);
         chunk.populate_noise();
         assert_eq!(
             expected_data,
@@ -242,7 +242,7 @@ mod test {
     fn test_no_blend_no_beard_aquifer() {
         let expected_data: Vec<u16> =
             read_data_from_file!("../../assets/no_blend_no_beard_7_4.chunk");
-        let mut chunk = ProtoChunk::new(Vector2::new(7, 4), 0);
+        let mut chunk = ProtoChunk::new(Vec2::new(7, 4), 0);
         chunk.populate_noise();
 
         assert_eq!(

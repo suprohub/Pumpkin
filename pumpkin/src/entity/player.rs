@@ -49,7 +49,7 @@ use pumpkin_util::{
         boundingbox::{BoundingBox, BoundingBoxSize},
         experience,
         position::BlockPos,
-        vector2::Vector2,
+        vector2::Vec2,
         vector3::Vec3,
     },
     permission::PermissionLvl,
@@ -201,7 +201,7 @@ impl Player {
             // will mark chunks as watched for a new join rather than a respawn
             // (We left shift by one so we can search around that chunk)
             watched_section: AtomicCell::new(Cylindrical::new(
-                Vector2::new(i32::MAX >> 1, i32::MAX >> 1),
+                Vec2::new(i32::MAX >> 1, i32::MAX >> 1),
                 unsafe { NonZeroU8::new_unchecked(1) },
             )),
             wait_for_keep_alive: AtomicBool::new(false),

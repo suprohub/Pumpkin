@@ -10,7 +10,7 @@ use pumpkin_protocol::{client::config::CPluginMessage, ClientPacket};
 use pumpkin_registry::{DimensionType, Registry};
 use pumpkin_util::math::boundingbox::{BoundingBox, BoundingBoxSize};
 use pumpkin_util::math::position::BlockPos;
-use pumpkin_util::math::vector2::Vector2;
+use pumpkin_util::math::vector2::Vec2;
 use pumpkin_util::math::vector3::Vec3;
 use pumpkin_util::text::TextComponent;
 use pumpkin_util::GameMode;
@@ -116,7 +116,7 @@ impl Server {
         // Spawn chunks are never unloaded
         for x in -1..=1 {
             for z in -1..=1 {
-                world.level.mark_chunk_as_newly_watched(Vector2::new(x, z));
+                world.level.mark_chunk_as_newly_watched(Vec2::new(x, z));
             }
         }
 

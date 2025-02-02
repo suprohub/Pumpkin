@@ -1,6 +1,6 @@
 use fastnbt::LongArray;
 use pumpkin_data::chunk::ChunkStatus;
-use pumpkin_util::math::{ceil_log2, vector2::Vector2};
+use pumpkin_util::math::{ceil_log2, vector2::Vec2};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, iter::repeat_with};
 use thiserror::Error;
@@ -23,7 +23,7 @@ pub trait ChunkReader: Sync + Send {
     fn read_chunk(
         &self,
         save_file: &LevelFolder,
-        at: &Vector2<i32>,
+        at: &Vec2<i32>,
     ) -> Result<ChunkData, ChunkReadingError>;
 }
 
@@ -32,7 +32,7 @@ pub trait ChunkWriter: Send + Sync {
         &self,
         chunk: &ChunkData,
         level_folder: &LevelFolder,
-        at: &Vector2<i32>,
+        at: &Vec2<i32>,
     ) -> Result<(), ChunkWritingError>;
 }
 
@@ -80,7 +80,7 @@ pub struct ChunkData {
     pub subchunks: Subchunks,
     /// See `https://minecraft.wiki/w/Heightmap` for more info
     pub heightmap: ChunkHeightmaps,
-    pub position: Vector2<i32>,
+    pub position: Vec2<i32>,
 }
 
 /// # Subchunks
@@ -334,7 +334,7 @@ pub struct ChunkStatusWrapper {
 impl ChunkData {
     pub fn from_bytes(
         chunk_data: &[u8],
-        position: Vector2<i32>,
+        position: Vec2<i32>,
     ) -> Result<Self, ChunkParsingError> {
         if fastnbt::from_bytes::<ChunkStatusWrapper>(chunk_data)
             .map_err(|_| ChunkParsingError::FailedReadStatus)?
