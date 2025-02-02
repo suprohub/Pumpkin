@@ -125,7 +125,7 @@ impl CommandExecutor for SoundExecutor {
 
             if distance <= max_distance.into() || _min_volume > 0.0 {
                 target
-                    .play_sound(sound as u16, source, &pos, volume, pitch, seed)
+                    .play_sound(sound as u16, source, pos, volume, pitch, seed)
                     .await;
                 players_who_heard += 1;
             }

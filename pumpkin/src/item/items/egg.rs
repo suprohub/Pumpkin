@@ -6,13 +6,14 @@ use crate::item::pumpkin_item::PumpkinItem;
 use crate::server::Server;
 use async_trait::async_trait;
 use pumpkin_data::entity::EntityType;
-use pumpkin_data::sound::Sound;
+use pumpkin_data::sound::{Sound, SoundCategory};
 use pumpkin_macros::pumpkin_item;
 use pumpkin_world::item::registry::Item;
+
+use super::THROW_POWER;
+
 #[pumpkin_item("minecraft:egg")]
 pub struct EggItem;
-
-const POWER: f32 = 1.5;
 
 #[async_trait]
 impl PumpkinItem for EggItem {
@@ -20,16 +21,12 @@ impl PumpkinItem for EggItem {
         let position = player.position();
         let world = player.world();
         world
-            .play_sound(
-                Sound::EntityEggThrow,
-                pumpkin_data::sound::SoundCategory::Players,
-                &position,
-            )
+            .play_sound(Sound::EntityEggThrow, SoundCategory::Players, position)
             .await;
         // TODO: Implement eggs the right way, so there is a chance of spawning chickens
         let entity = server.add_entity(position, EntityType::Egg, world);
         let snowball = ThrownItem::new(entity, &player.living_entity.entity);
-        snowball.set_velocity_shooter_rot(&player.living_entity.entity, POWER, 1.0);
+        snowball.set_velocity_shooter_rot(&player.living_entity.entity, THROW_POWER, 1.0);
         world.spawn_entity(Arc::new(snowball)).await;
     }
 }

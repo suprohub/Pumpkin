@@ -334,19 +334,19 @@ impl Player {
                 .play_sound(
                     Sound::EntityPlayerAttackNodamage,
                     SoundCategory::Players,
-                    &pos,
+                    pos,
                 )
                 .await;
             return;
         }
 
         world
-            .play_sound(Sound::EntityPlayerHurt, SoundCategory::Players, &pos)
+            .play_sound(Sound::EntityPlayerHurt, SoundCategory::Players, pos)
             .await;
 
         let attack_type = AttackType::new(self, attack_cooldown_progress as f32).await;
 
-        player_attack_sound(&pos, world, attack_type).await;
+        player_attack_sound(pos, world, attack_type).await;
 
         if matches!(attack_type, AttackType::Critical) {
             damage *= 1.5;
@@ -393,7 +393,7 @@ impl Player {
         &self,
         sound_id: u16,
         category: SoundCategory,
-        position: &Vector3<f64>,
+        position: Vector3<f64>,
         volume: f32,
         pitch: f32,
         seed: f64,
@@ -403,9 +403,7 @@ impl Player {
                 VarInt(i32::from(sound_id)),
                 None,
                 category,
-                position.x,
-                position.y,
-                position.z,
+                position,
                 volume,
                 pitch,
                 seed,

@@ -118,7 +118,7 @@ pub async fn spawn_sweep_particle(attacker_entity: &Entity, world: &World, pos: 
         .await;
 }
 
-pub async fn player_attack_sound(pos: &Vector3<f64>, world: &World, attack_type: AttackType) {
+pub async fn player_attack_sound(pos: Vector3<f64>, world: &World, attack_type: AttackType) {
     match attack_type {
         AttackType::Knockback => {
             world

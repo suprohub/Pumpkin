@@ -338,7 +338,7 @@ impl Entity {
     /// Plays sound at this entity's position with the entity's sound category
     pub async fn play_sound(&self, sound: Sound) {
         self.world
-            .play_sound(sound, SoundCategory::Neutral, &self.pos.load())
+            .play_sound(sound, SoundCategory::Neutral, self.pos.load())
             .await;
     }
 
