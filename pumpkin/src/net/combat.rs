@@ -71,7 +71,7 @@ pub async fn handle_knockback(
 ) {
     let yaw = attacker_entity.yaw.load();
 
-    let saved_velo = victim_entity.velocity.load();
+    let saved_velocity = victim_entity.velocity.load();
     victim_entity.knockback(
         strength * 0.5,
         f64::from((yaw * (PI / 180.0)).sin()),
@@ -81,18 +81,14 @@ pub async fn handle_knockback(
     let entity_id = VarInt(victim_entity.entity_id);
     let victim_velocity = victim_entity.velocity.load();
 
-    let packet = &CEntityVelocity::new(
-        &entity_id,
-        victim_velocity.x,
-        victim_velocity.y,
-        victim_velocity.z,
-    );
+    let packet = &CEntityVelocity::new(entity_id, victim_velocity);
+
     let velocity = attacker_entity.velocity.load();
     attacker_entity
         .velocity
         .store(velocity.multiply(0.6, 1.0, 0.6));
 
-    victim_entity.velocity.store(saved_velo);
+    victim_entity.velocity.store(saved_velocity);
     victim.client.send_packet(packet).await;
 }
 

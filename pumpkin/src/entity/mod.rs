@@ -249,22 +249,16 @@ impl Entity {
     }
 
     pub fn create_spawn_packet(&self) -> CSpawnEntity {
-        let entity_loc = self.pos.load();
-        let entity_vel = self.velocity.load();
         CSpawnEntity::new(
             VarInt(self.entity_id),
             self.entity_uuid,
             VarInt((self.entity_type) as i32),
-            entity_loc.x,
-            entity_loc.y,
-            entity_loc.z,
+            self.pos.load(),
             self.pitch.load(),
             self.yaw.load(),
             self.head_yaw.load(), // todo: head_yaw and yaw are swapped, find out why
             0.into(),
-            entity_vel.x as f32,
-            entity_vel.y as f32,
-            entity_vel.z as f32,
+            self.velocity.load().as_f32(),
         )
     }
 

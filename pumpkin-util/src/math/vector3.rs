@@ -15,6 +15,10 @@ impl<T: Math + Copy> Vector3<T> {
         Vector3 { x, y, z }
     }
 
+    pub const fn splat(c: T) -> Self {
+        Vector3 { x: c, y: c, z: c }
+    }
+
     pub fn length_squared(&self) -> T {
         self.x * self.x + self.y * self.y + self.z * self.z
     }

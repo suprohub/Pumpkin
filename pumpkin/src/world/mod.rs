@@ -402,16 +402,12 @@ impl World {
                 entity_id.into(),
                 gameprofile.id,
                 (EntityType::Player as i32).into(),
-                position.x,
-                position.y,
-                position.z,
+                position,
                 pitch,
                 yaw,
                 yaw,
                 0.into(),
-                0.0,
-                0.0,
-                0.0,
+                Vector3::splat(0.0),
             ),
         )
         .await;
@@ -419,7 +415,6 @@ impl World {
         let id = player.gameprofile.id;
         for (_, existing_player) in self.players.lock().await.iter().filter(|c| c.0 != &id) {
             let entity = &existing_player.living_entity.entity;
-            let pos = entity.pos.load();
             let gameprofile = &existing_player.gameprofile;
             log::debug!("Sending player entities to {}", player.gameprofile.name);
             player
@@ -428,16 +423,12 @@ impl World {
                     existing_player.entity_id().into(),
                     gameprofile.id,
                     (EntityType::Player as i32).into(),
-                    pos.x,
-                    pos.y,
-                    pos.z,
+                    entity.pos.load(),
                     entity.yaw.load(),
                     entity.pitch.load(),
                     entity.head_yaw.load(),
                     0.into(),
-                    0.0,
-                    0.0,
-                    0.0,
+                    Vector3::splat(0.0),
                 ))
                 .await;
         }
@@ -548,16 +539,12 @@ impl World {
                 entity.entity_id.into(),
                 player.gameprofile.id,
                 (EntityType::Player as i32).into(),
-                position.x,
-                position.y,
-                position.z,
+                position,
                 pitch,
                 yaw,
                 yaw,
                 0.into(),
-                0.0,
-                0.0,
-                0.0,
+                Vector3::splat(0.0),
             ),
         )
         .await;
