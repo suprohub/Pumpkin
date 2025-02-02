@@ -1,6 +1,6 @@
 use pumpkin_data::packet::clientbound::PLAY_RESPAWN;
 use pumpkin_macros::client_packet;
-use pumpkin_util::math::position::BlockPos;
+use pumpkin_util::{gamemode::OptionalGameMode, math::position::BlockPos, GameMode};
 use serde::Serialize;
 
 use crate::{codec::identifier::Identifier, VarInt};
@@ -11,8 +11,8 @@ pub struct CRespawn {
     dimension_type: VarInt,
     dimension_name: Identifier,
     hashed_seed: i64,
-    game_mode: u8,
-    previous_gamemode: i8,
+    game_mode: GameMode,
+    previous_gamemode: OptionalGameMode,
     debug: bool,
     is_flat: bool,
     death_dimension_name: Option<(Identifier, BlockPos)>,
@@ -27,8 +27,8 @@ impl CRespawn {
         dimension_type: VarInt,
         dimension_name: Identifier,
         hashed_seed: i64,
-        game_mode: u8,
-        previous_gamemode: i8,
+        game_mode: GameMode,
+        previous_gamemode: OptionalGameMode,
         debug: bool,
         is_flat: bool,
         death_dimension_name: Option<(Identifier, BlockPos)>,

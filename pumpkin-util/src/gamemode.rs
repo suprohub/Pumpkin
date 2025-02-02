@@ -6,24 +6,33 @@ use serde::{Deserialize, Serialize};
 pub struct ParseGameModeError;
 
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
-#[repr(i8)]
+#[repr(u8)]
 pub enum GameMode {
-    Undefined = -1,
     Survival,
     Creative,
     Adventure,
     Spectator,
 }
 
-impl From<i8> for GameMode {
-    fn from(value: i8) -> Self {
+impl GameMode {
+    pub fn to_optional(&self) -> OptionalGameMode {
+        match &self {
+            Self::Survival => OptionalGameMode::Survival,
+            Self::Creative => OptionalGameMode::Creative,
+            Self::Adventure => OptionalGameMode::Adventure,
+            Self::Spectator => OptionalGameMode::Spectator,
+        }
+    }
+}
+
+impl From<u8> for GameMode {
+    fn from(value: u8) -> Self {
         match value {
-            -1 => Self::Undefined,
             0 => Self::Survival,
             1 => Self::Creative,
             2 => Self::Adventure,
             3 => Self::Spectator,
-            _ => Self::Undefined,
+            _ => Self::Survival,
         }
     }
 }
@@ -38,6 +47,29 @@ impl FromStr for GameMode {
             "adventure" => Ok(Self::Adventure),
             "spectator" => Ok(Self::Spectator),
             _ => Err(ParseGameModeError),
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[repr(i8)]
+pub enum OptionalGameMode {
+    Undefined = -1,
+    Survival,
+    Creative,
+    Adventure,
+    Spectator,
+}
+
+impl From<i8> for OptionalGameMode {
+    fn from(value: i8) -> Self {
+        match value {
+            -1 => Self::Undefined,
+            0 => Self::Survival,
+            1 => Self::Creative,
+            2 => Self::Adventure,
+            3 => Self::Spectator,
+            _ => Self::Survival,
         }
     }
 }

@@ -477,14 +477,16 @@ impl World {
 
         // TODO: switch world in player entity to new world
 
+        let gamemode = player.gamemode.load();
+
         player
             .client
             .send_packet(&CRespawn::new(
                 (self.dimension_type as u8).into(),
                 self.dimension_type.name(),
                 0, // seed
-                player.gamemode.load() as u8,
-                player.gamemode.load() as i8,
+                gamemode,
+                gamemode.to_optional(),
                 false,
                 false,
                 Some((death_dimension, death_location)),

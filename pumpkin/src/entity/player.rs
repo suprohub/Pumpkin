@@ -1094,7 +1094,7 @@ impl Abilities {
                 self.creative = false;
                 self.invulnerable = true;
             }
-            GameMode::Survival | GameMode::Adventure | GameMode::Undefined => {
+            GameMode::Survival | GameMode::Adventure => {
                 self.flying = false;
                 self.allow_flying = false;
                 self.creative = false;
