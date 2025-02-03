@@ -1,5 +1,4 @@
-use std::sync::Arc;
-
+use super::POWER;
 use crate::entity::player::Player;
 use crate::entity::projectile::ThrownItemEntity;
 use crate::item::pumpkin_item::PumpkinItem;
@@ -9,6 +8,7 @@ use pumpkin_data::entity::EntityType;
 use pumpkin_data::sound::Sound;
 use pumpkin_macros::pumpkin_item;
 use pumpkin_world::item::registry::Item;
+use std::sync::Arc;
 
 #[pumpkin_item("minecraft:egg")]
 pub struct EggItem;
