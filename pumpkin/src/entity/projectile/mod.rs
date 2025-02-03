@@ -6,13 +6,7 @@ pub struct ThrownItemEntity {
     entity: Entity,
 }
 
-
-
-
-
-
 impl ThrownItemEntity {
-
     pub fn new(entity: Entity, owner: &Entity) -> Self {
         let mut owner_pos = owner.pos.load();
         owner_pos.y = (owner_pos.y + f64::from(owner.standing_eye_height)) - 0.1;

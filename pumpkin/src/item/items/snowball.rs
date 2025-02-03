@@ -31,13 +31,6 @@ impl PumpkinItem for SnowBallItem {
         let snowball = ThrownItemEntity::new(entity, &player.living_entity.entity);
         snowball.set_velocity_shooter_rot(&player.living_entity.entity, POWER, 1.0);
 
-
-
-
-
-
-
-
         world.spawn_entity(Arc::new(snowball)).await;
     }
 }

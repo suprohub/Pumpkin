@@ -13,8 +13,6 @@ use pumpkin_world::item::registry::Item;
 #[pumpkin_item("minecraft:egg")]
 pub struct EggItem;
 
-
-
 #[async_trait]
 impl PumpkinItem for EggItem {
     async fn normal_use(&self, _block: &Item, player: &Player, server: &Server) {
@@ -31,12 +29,7 @@ impl PumpkinItem for EggItem {
         let entity = server.add_entity(position, EntityType::Egg, world);
 
         let snowball = ThrownItemEntity::new(entity, &player.living_entity.entity);
-        snowball.set_velocity_shooter_rot(&player.living_entity.entity, POWER, 1.0)
-
-
-
-
-
+        snowball.set_velocity_shooter_rot(&player.living_entity.entity, POWER, 1.0);
 
         world.spawn_entity(Arc::new(snowball)).await;
     }
