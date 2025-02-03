@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::entity::player::Player;
-use crate::entity::projectile::ThrownItem;
+use crate::entity::projectile::ThrownItemEntity;
 use crate::item::pumpkin_item::PumpkinItem;
 use crate::server::Server;
 use async_trait::async_trait;
@@ -27,8 +27,17 @@ impl PumpkinItem for SnowBallItem {
             )
             .await;
         let entity = server.add_entity(position, EntityType::Snowball, world);
-        let snowball = ThrownItem::new(entity, &player.living_entity.entity);
+
+        let snowball = ThrownItemEntity::new(entity, &player.living_entity.entity);
         snowball.set_velocity_shooter_rot(&player.living_entity.entity, POWER, 1.0);
+
+
+
+
+
+
+
+
         world.spawn_entity(Arc::new(snowball)).await;
     }
 }
